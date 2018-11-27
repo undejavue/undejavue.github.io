@@ -1,16 +1,25 @@
+import 'ol/ol.css';
+import 'ol-popup/src/ol-popup.css';
 import { Component, OnInit } from '@angular/core';
-import OlMap from 'ol/Map';
-import OlXYZ from 'ol/source/XYZ';
-import OlTileLayer from 'ol/layer/Tile';
-import OlView from 'ol/View';
-import OlFeature from 'ol/Feature';
-import OlPoint from 'ol/geom/Point';
+import Map from 'ol/Map';
+import XYZ from 'ol/source/XYZ';
+import View from 'ol/View';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
 import { fromLonLat } from 'ol/proj';
 
-import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 import TileJSON from 'ol/source/TileJSON.js';
 import VectorSource from 'ol/source/Vector.js';
-import {Icon, Style} from 'ol/style.js';
+import { Icon, Style } from 'ol/style.js';
+import { PollutionService } from 'src/app/services/pollution.service';
+import { IGeoPoint } from '../models/geo-point.interface';
+import { IMarker } from '../models/marker.interface';
+import { IMarkerSettings } from '../models/marker-settings.interface';
+import Popup from 'ol-popup';
+import { transform } from 'ol/proj';
+import {toStringHDMS} from 'ol/coordinate';
+import SourceOSM from 'ol/source/OSM';
 
 @Component({
   selector: 'app-map',
@@ -18,50 +27,68 @@ import {Icon, Style} from 'ol/style.js';
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit {
-  // Minsk
-  latitude = 53.893009;
-  longitude = 27.567444;
+  map: Map;
+  source: XYZ;
+  layer: TileLayer;
+  view: View;
+  mapCenter: IGeoPoint;
+  markers: IMarker[];
+  features: Feature[];
+  markerSettings: IMarkerSettings;
 
-  marker = {
-      title: 'Bobryisk',
-      longtittude: 29.2213753,
-      latitude: 53.1446069
-    };
+  constructor(private service: PollutionService) {
+    this.mapCenter = service.getMapCenter();
+    this.markerSettings = {
+      defaultIcon: 'assets/images/info.png',
+      size: [32, 32]
+    }
+  }
 
-  map: OlMap;
-  source: OlXYZ;
-  layer: OlTileLayer;
-  view: OlView;
 
-  ngOnInit() {
-    this.source = new OlXYZ({
-      url: 'http://tile.osm.org/{z}/{x}/{y}.png'
+  getFeature(marker: IMarker): Feature {
+    const feature = new Feature({
+      geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
+      name: marker.title
     });
-
-    this.layer = new OlTileLayer({
-      source: this.source
-    });
-
-    this.view = new OlView({
-      center: fromLonLat([this.longitude, this.latitude]),
-      zoom: 8
-    });
-
-    const bobruisk = new OlFeature({
-      geometry: new OlPoint(fromLonLat([this.marker.longtittude, this.marker.latitude]))
-    });
-
-
-    bobruisk.setStyle(new Style({
+    feature.setStyle(new Style({
       image: new Icon(({
         color: '#8959A8',
         crossOrigin: 'anonymous',
-        src: 'assets/images/info.png'
+        src: this.markerSettings.defaultIcon,
+        size: this.markerSettings.size
       }))
     }));
+    return feature;
+  }
+
+  ngOnInit() {
+    this.markers = this.service.getPoints();
+    this.features = this.markers.map(m => this.getFeature(m));
+
+
+
+    /*     var iconFeature1 = new Feature({
+          geometry: new Point(fromLonLat([-0.1526069, 51.4790309]),),
+          name: 'Somewhere',
+        });
+        
+        var iconFeature2 = new Feature({
+          geometry: new Point(fromLonLat([-0.1426069, 51.4840309])),
+          name: 'Somewhere else'
+        });
+        
+        // specific style for that one point
+        iconFeature2.setStyle(new ol.style.Style({
+          image: new ol.style.Icon({
+            anchor: [0.5, 46],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'pixels',
+            src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Map_marker_font_awesome.svg/200px-Map_marker_font_awesome.svg.png',
+          })
+        })); */
 
     const vectorSource = new VectorSource({
-      features: [bobruisk]
+      features: this.features
     });
 
     const vectorLayer = new VectorLayer({
@@ -76,10 +103,30 @@ export class MapComponent implements OnInit {
     });
 
 
-    this.map = new OlMap({
+    // Create map
+    this.source = new SourceOSM();
+
+    this.layer = new TileLayer({
+      source: this.source
+    });
+
+    this.view = new View({
+      center: fromLonLat([this.mapCenter.longtitude, this.mapCenter.latitude]),
+      zoom: 8
+    });
+
+    this.map = new Map({
       target: 'map',
       layers: [this.layer, vectorLayer],
       view: this.view
     });
+
+/*     var popup = new Popup();
+    this.map.addOverlay(popup);
+
+    this.map.on('singleclick', function (evt) {
+      var prettyCoord = toStringHDMS(transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'), 2);
+      popup.show(evt.coordinate, '<div><h2>Coordinates</h2><p>' + prettyCoord + '</p></div>');
+    }); */
   }
 }
