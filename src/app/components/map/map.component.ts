@@ -11,15 +11,19 @@ import { fromLonLat } from 'ol/proj';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 import TileJSON from 'ol/source/TileJSON.js';
 import VectorSource from 'ol/source/Vector.js';
-import { Icon, Style } from 'ol/style.js';
+import { Icon, Style, Stroke, Fill } from 'ol/style.js';
 import { PollutionService } from 'src/app/services/pollution.service';
 import { IGeoPoint } from '../models/geo-point.interface';
 import { IMarker } from '../models/marker.interface';
 import { IMarkerSettings } from '../models/marker-settings.interface';
 import Popup from 'ol-popup';
 import { transform } from 'ol/proj';
-import {toStringHDMS} from 'ol/coordinate';
+import { toStringHDMS } from 'ol/coordinate';
 import SourceOSM from 'ol/source/OSM';
+import { format } from 'ol/format';
+import GeoJSON from 'ol/format/GeoJSON.js';
+import {defaults as defaultControls, ZoomToExtent} from 'ol/control.js';
+
 
 @Component({
   selector: 'app-map',
@@ -41,7 +45,7 @@ export class MapComponent implements OnInit {
     this.markerSettings = {
       defaultIcon: 'assets/images/info.png',
       size: [32, 32]
-    }
+    };
   }
 
 
@@ -102,9 +106,30 @@ export class MapComponent implements OnInit {
       })
     });
 
+    // Belarus
+    // vector layer
+    const strokeVector = new VectorLayer({
+      source: new VectorSource({
+        format: new GeoJSON(),
+        url: './assets/data/geo.json'
+      }),
+      style: (feature, res) => {
+
+        // replace "Germany" with any country name you would like to display...
+         if (feature.get('name') == 'Belarus') {
+          return new Style({
+            stroke: new Stroke({
+              color: 'gray',
+              width: 4
+            })
+          });
+        }
+      }
+    });
 
     // Create map
-    this.source = new SourceOSM();
+    this.source = new SourceOSM({
+  });
 
     this.layer = new TileLayer({
       source: this.source
@@ -116,17 +141,30 @@ export class MapComponent implements OnInit {
     });
 
     this.map = new Map({
+      
+      controls: defaultControls().extend([
+        new ZoomToExtent({
+          extent: [
+            813079.7791264898, 5929220.284081122,
+            848966.9639063801, 5936863.986909639
+          ]
+        })
+      ]),
       target: 'map',
-      layers: [this.layer, vectorLayer],
+      layers: [this.layer, vectorLayer, strokeVector],
       view: this.view
     });
 
-/*     var popup = new Popup();
-    this.map.addOverlay(popup);
-
-    this.map.on('singleclick', function (evt) {
-      var prettyCoord = toStringHDMS(transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'), 2);
-      popup.show(evt.coordinate, '<div><h2>Coordinates</h2><p>' + prettyCoord + '</p></div>');
-    }); */
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
+      this.map.getView().animate({center: coords, zoom: 10});
+    });
+    /*     var popup = new Popup();
+        this.map.addOverlay(popup);
+    
+        this.map.on('singleclick', function (evt) {
+          var prettyCoord = toStringHDMS(transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'), 2);
+          popup.show(evt.coordinate, '<div><h2>Coordinates</h2><p>' + prettyCoord + '</p></div>');
+        }); */
   }
 }
