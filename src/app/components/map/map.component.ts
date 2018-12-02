@@ -1,5 +1,4 @@
 import 'ol/ol.css';
-import 'ol-popup/src/ol-popup.css';
 import { Component, OnInit } from '@angular/core';
 import Map from 'ol/Map';
 import XYZ from 'ol/source/XYZ';
@@ -8,21 +7,20 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { fromLonLat } from 'ol/proj';
 
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
+import { Tile } from 'ol/layer';
+import { Vector } from 'ol/layer';
 import TileJSON from 'ol/source/TileJSON.js';
 import VectorSource from 'ol/source/Vector.js';
-import { Icon, Style, Stroke, Fill } from 'ol/style.js';
-import { PollutionService } from 'src/app/services/pollution.service';
+import { Icon, Style, Stroke, Fill, Circle, Text } from 'ol/style';
+import { PollutionService } from '../../services/pollution.service';
 import { IGeoPoint } from '../models/geo-point.interface';
 import { IMarker } from '../models/marker.interface';
 import { IMarkerSettings } from '../models/marker-settings.interface';
-import Popup from 'ol-popup';
-import { transform } from 'ol/proj';
-import { toStringHDMS } from 'ol/coordinate';
 import SourceOSM from 'ol/source/OSM';
-import { format } from 'ol/format';
 import GeoJSON from 'ol/format/GeoJSON.js';
-import {defaults as defaultControls, ZoomToExtent} from 'ol/control.js';
+import { defaults as defaultControls, ZoomToExtent } from 'ol/control';
+
+import * as ol from 'ol';
 
 
 @Component({
@@ -33,7 +31,7 @@ import {defaults as defaultControls, ZoomToExtent} from 'ol/control.js';
 export class MapComponent implements OnInit {
   map: Map;
   source: XYZ;
-  layer: TileLayer;
+  layer: Tile;
   view: View;
   mapCenter: IGeoPoint;
   markers: IMarker[];
@@ -69,37 +67,15 @@ export class MapComponent implements OnInit {
     this.markers = this.service.getPoints();
     this.features = this.markers.map(m => this.getFeature(m));
 
-
-
-    /*     var iconFeature1 = new Feature({
-          geometry: new Point(fromLonLat([-0.1526069, 51.4790309]),),
-          name: 'Somewhere',
-        });
-        
-        var iconFeature2 = new Feature({
-          geometry: new Point(fromLonLat([-0.1426069, 51.4840309])),
-          name: 'Somewhere else'
-        });
-        
-        // specific style for that one point
-        iconFeature2.setStyle(new ol.style.Style({
-          image: new ol.style.Icon({
-            anchor: [0.5, 46],
-            anchorXUnits: 'fraction',
-            anchorYUnits: 'pixels',
-            src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Map_marker_font_awesome.svg/200px-Map_marker_font_awesome.svg.png',
-          })
-        })); */
-
     const vectorSource = new VectorSource({
       features: this.features
     });
 
-    const vectorLayer = new VectorLayer({
+    const vectorLayer = new Vector({
       source: vectorSource
     });
 
-    const rasterLayer = new TileLayer({
+    const rasterLayer = new Tile({
       source: new TileJSON({
         url: 'https://api.tiles.mapbox.com/v3/mapbox.geography-class.json?secure',
         crossOrigin: ''
@@ -108,15 +84,13 @@ export class MapComponent implements OnInit {
 
     // Belarus
     // vector layer
-    const strokeVector = new VectorLayer({
+    const strokeVector = new Vector({
       source: new VectorSource({
         format: new GeoJSON(),
         url: './assets/data/geo.json'
       }),
       style: (feature, res) => {
-
-        // replace "Germany" with any country name you would like to display...
-         if (feature.get('name') == 'Belarus') {
+        if (feature.get('name') == 'Belarus') {
           return new Style({
             stroke: new Stroke({
               color: 'gray',
@@ -129,9 +103,9 @@ export class MapComponent implements OnInit {
 
     // Create map
     this.source = new SourceOSM({
-  });
+    });
 
-    this.layer = new TileLayer({
+    this.layer = new Tile({
       source: this.source
     });
 
@@ -141,7 +115,7 @@ export class MapComponent implements OnInit {
     });
 
     this.map = new Map({
-      
+
       controls: defaultControls().extend([
         new ZoomToExtent({
           extent: [
@@ -155,16 +129,10 @@ export class MapComponent implements OnInit {
       view: this.view
     });
 
-    navigator.geolocation.getCurrentPosition(function(pos) {
+    navigator.geolocation.getCurrentPosition(pos => {
       const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
-      this.map.getView().animate({center: coords, zoom: 10});
+      this.map.getView().animate({ center: coords, zoom: 10 });
     });
-    /*     var popup = new Popup();
-        this.map.addOverlay(popup);
-    
-        this.map.on('singleclick', function (evt) {
-          var prettyCoord = toStringHDMS(transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'), 2);
-          popup.show(evt.coordinate, '<div><h2>Coordinates</h2><p>' + prettyCoord + '</p></div>');
-        }); */
+
   }
 }

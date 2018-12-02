@@ -1,0 +1,304 @@
+import 'ol/ol.css';
+import 'ol-popup/src/ol-popup.css';
+import { Component, OnInit } from '@angular/core';
+import Map from 'ol/Map';
+import XYZ from 'ol/source/XYZ';
+import View from 'ol/View';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import { fromLonLat } from 'ol/proj';
+
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/style';
+import TileJSON from 'ol/source/TileJSON.js';
+import VectorSource from 'ol/source/Vector.js';
+import Cluster from 'ol/source/Cluster';
+import { Icon, Style, Stroke, Fill, Circle, Text } from 'ol/style';
+import { PollutionService } from 'src/app/services/pollution.service';
+import { IGeoPoint } from '../models/geo-point.interface';
+import { IMarker } from '../models/marker.interface';
+import { IMarkerSettings } from '../models/marker-settings.interface';
+import Popup from 'ol-popup';
+import SourceOSM from 'ol/source/OSM';
+import GeoJSON from 'ol/format/GeoJSON.js';
+import { defaults as defaultControls, ZoomToExtent } from 'ol/control';
+
+import * as ol from 'ol';
+
+
+@Component({
+  selector: 'app-map',
+  templateUrl: './map.component.html',
+  styleUrls: ['./map.component.scss']
+})
+export class MapComponent implements OnInit {
+  map: Map;
+  source: XYZ;
+  layer: TileLayer;
+  view: View;
+  mapCenter: IGeoPoint;
+  markers: IMarker[];
+  features: Feature[];
+  markerSettings: IMarkerSettings;
+
+  constructor(private service: PollutionService) {
+    this.mapCenter = service.getMapCenter();
+    this.markerSettings = {
+      defaultIcon: 'assets/images/info.png',
+      size: [32, 32]
+    };
+  }
+
+
+  getFeature(marker: IMarker): Feature {
+    const feature = new Feature({
+      geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
+      name: marker.title
+    });
+    feature.setStyle(new Style({
+      image: new Icon(({
+        color: '#8959A8',
+        crossOrigin: 'anonymous',
+        src: this.markerSettings.defaultIcon,
+        size: this.markerSettings.size
+      }))
+    }));
+    return feature;
+  }
+
+  ngOnInit() {
+    this.markers = this.service.getPoints();
+    this.features = this.markers.map(m => this.getFeature(m));
+
+    const vectorSource = new VectorSource({
+      features: this.features
+    });
+
+    const vectorLayer = new VectorLayer({
+      source: vectorSource
+    });
+
+    const rasterLayer = new TileLayer({
+      source: new TileJSON({
+        url: 'https://api.tiles.mapbox.com/v3/mapbox.geography-class.json?secure',
+        crossOrigin: ''
+      })
+    });
+
+    // Belarus
+    // vector layer
+    const strokeVector = new VectorLayer({
+      source: new VectorSource({
+        format: new GeoJSON(),
+        url: './assets/data/geo.json'
+      }),
+      style: (feature, res) => {
+        if (feature.get('name') == 'Belarus') {
+          return new Style({
+            stroke: new Stroke({
+              color: 'gray',
+              width: 4
+            })
+          });
+        }
+      }
+    });
+
+    // Create map
+    this.source = new SourceOSM({
+    });
+
+    this.layer = new TileLayer({
+      source: this.source
+    });
+
+    this.view = new View({
+      center: fromLonLat([this.mapCenter.longtitude, this.mapCenter.latitude]),
+      zoom: 8
+    });
+
+    this.map = new Map({
+
+      controls: defaultControls().extend([
+        new ZoomToExtent({
+          extent: [
+            813079.7791264898, 5929220.284081122,
+            848966.9639063801, 5936863.986909639
+          ]
+        })
+      ]),
+      target: 'map',
+      layers: [this.layer, vectorLayer, strokeVector],
+      view: this.view
+    });
+
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
+      this.map.getView().animate({ center: coords, zoom: 10 });
+    });
+    /*     var popup = new Popup();
+        this.map.addOverlay(popup);
+        this.map.on('singleclick', function (evt) {
+          var prettyCoord = toStringHDMS(transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'), 2);
+          popup.show(evt.coordinate, '<div><h2>Coordinates</h2><p>' + prettyCoord + '</p></div>');
+        }); */
+      this.makeAllStuff(this.map);
+  }
+
+  // Addfeatures to the cluster
+  addFeatures(nb, ext, clusterSource) {
+    const features = [];
+    for (let i = 0; i < nb; ++i) {
+    features[i] = new Feature(new Point([ext[0] + (ext[2] - ext[0]) * Math.random(), ext[1] + (ext[3] - ext[1]) * Math.random()]));
+      features[i].set('id', i);
+    }
+    clusterSource.getSource().clear();
+    clusterSource.getSource().addFeatures(features);
+  }
+
+  getStyle(feature, resolution, styleCache) {
+    const size = feature.get('features').length;
+    let style = styleCache[size];
+    if (!style) {
+      const color = size > 25 ? '192,0,0' : size > 8 ? '255,128,0' : '0,128,0';
+      const radius = Math.max(8, Math.min(size * 0.75, 20));
+      const  dot = 2 * Math.PI * radius / 6;
+      const dash = [0, dot, dot, dot, dot, dot, dot];
+      style = styleCache[size] = new Style (
+        {
+          image: new Circle (
+            {
+              radius: radius,
+              stroke: new Stroke(
+                {
+                  color: 'rgba(' + color + ',0.5)',
+                  width: 15,
+                  lineDash: dash,
+                  lineCap: 'butt'
+                }),
+              fill: new Fill(
+                {
+                  color: 'rgba(' + color + ',1)'
+                })
+            }),
+          text: new Text({
+              text: size.toString(),
+              fill: new Fill(
+                {
+                  color: '#fff'
+                })
+            })
+        });
+    }
+    return [style];
+  }
+
+  makeAllStuff(map) {
+    const ext = map.getView().calculateExtent(map.getSize());
+    // Style for the clusters
+    const styleCache = {};
+
+    // Cluster Source
+    const clusterSource = new Cluster({
+      distance: 40,
+      source: new VectorSource()
+    });
+    // Animated cluster layer
+    const clusterLayer = new ol.layer.AnimatedCluster(
+      {
+        name: 'Cluster',
+        source: clusterSource,
+        animationDuration: 700,
+        // Cluster style
+        style: this.getStyle
+      });
+    map.addLayer(clusterLayer);
+    // add 2000 features
+    this.addFeatures(2000, ext, clusterSource);
+    // Style for selection
+    const img = new Circle(
+      {
+        radius: 5,
+        stroke: new Stroke(
+          {
+            color: 'rgba(0,255,255,1)',
+            width: 1
+          }),
+        fill: new Fill(
+          {
+            color: 'rgba(0,255,255,0.3)'
+          })
+      });
+/*     let style0 = new Style(
+      {
+        image: img
+      });
+    let style1 = new Style(
+      {
+        image: img,
+        // Draw a link beetween points (or not)
+        stroke: new Stroke(
+          {
+            color: '#fff',
+            width: 1
+          })
+      }); */
+    // Select interaction to spread cluster out and select features
+   /*  let selectCluster = new SelectCluster(
+      {	// Point radius: to calculate distance between the features
+        pointRadius: 7,
+        animate: $('#animatesel').prop('checked'),
+        // Feature style when it springs apart
+        featureStyle: function () {
+          return [$('#haslink').prop('checked') ? style1 : style0]
+        },
+        // selectCluster: false,	// disable cluster selection
+        // Style to draw cluster when selected
+        style: function (f, res) {
+          let cluster = f.get('features');
+          if (cluster.length > 1) {
+            const s = getStyle(f, res);
+            if ($('#convexhull').prop('checked') && ol.coordinate.convexHull) {
+              const coords = [];
+              for (i = 0; i < cluster.length; i++) coords.push(cluster[i].getGeometry().getFirstCoordinate());
+              const chull = ol.coordinate.convexHull(coords);
+              s.push(new ol.style.Style(
+                {
+                  stroke: new ol.style.Stroke({ color: 'rgba(0,0,192,0.5)', width: 2 }),
+                  fill: new ol.style.Fill({ color: 'rgba(0,0,192,0.3)' }),
+                  geometry: new ol.geom.Polygon([chull]),
+                  zIndex: 1
+                }));
+            }
+            return s;
+          }
+          else {
+            return [
+              new ol.style.Style(
+                {
+                  image: new ol.style.Circle(
+                    {
+                      stroke: new ol.style.Stroke({ color: 'rgba(0,0,192,0.5)', width: 2 }),
+                      fill: new ol.style.Fill({ color: 'rgba(0,0,192,0.3)' }),
+                      radius: 5
+                    })
+                })];
+          }
+        }
+      }); */
+    /* map.addInteraction(selectCluster);
+    // On selected => get feature in cluster and show info
+    selectCluster.getFeatures().on(['add'], function (e) {
+      const c = e.element.get('features');
+      if (c.length == 1) {
+        const feature = c[0];
+        $('.infos').html('One feature selected...<br/>(id=' + feature.get('id') + ')');
+      }
+      else {
+        $('.infos').text('Cluster (' + c.length + ' features)');
+      }
+    })
+    selectCluster.getFeatures().on(['remove'], function (e) {
+      $('.infos').html('');
+    }) */
+  }
+}
