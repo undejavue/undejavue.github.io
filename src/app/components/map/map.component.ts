@@ -5,7 +5,7 @@ import XYZ from 'ol/source/XYZ';
 import View from 'ol/View';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, transform } from 'ol/proj';
 
 import { Tile } from 'ol/layer';
 import { Vector } from 'ol/layer';
@@ -19,120 +19,266 @@ import { IMarkerSettings } from '../models/marker-settings.interface';
 import SourceOSM from 'ol/source/OSM';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import { defaults as defaultControls, ZoomToExtent } from 'ol/control';
-
-import * as ol from 'ol';
-
+import { Cluster } from 'ol/source';
+import { unByKey } from 'ol/Observable.js';
+import { easeOut } from 'ol/easing.js';
+import Overlay from 'ol/Overlay.js';
 
 @Component({
-  selector: 'app-map',
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.scss']
+    selector: 'app-map',
+    templateUrl: './map.component.html',
+    styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit {
-  map: Map;
-  source: XYZ;
-  layer: Tile;
-  view: View;
-  mapCenter: IGeoPoint;
-  markers: IMarker[];
-  features: Feature[];
-  markerSettings: IMarkerSettings;
+    map: Map;
+    source: XYZ;
+    layer: Tile;
+    view: View;
+    mapCenter: IGeoPoint;
+    markers: IMarker[];
+    features: Feature[];
+    markerSettings: IMarkerSettings;
+    styleCache = {};
+    distance = 90;
+    clusterSource: any;
+    clusters: any;
 
-  constructor(private service: PollutionService) {
-    this.mapCenter = service.getMapCenter();
-    this.markerSettings = {
-      defaultIcon: 'assets/images/info.png',
-      size: [32, 32]
-    };
-  }
+    constructor(private service: PollutionService) {
+        this.mapCenter = service.getMapCenter();
+        this.markerSettings = {
+            defaultIcon: 'assets/images/info.png',
+            size: [32, 32]
+        };
+    }
 
 
-  getFeature(marker: IMarker): Feature {
-    const feature = new Feature({
-      geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
-      name: marker.title
-    });
-    feature.setStyle(new Style({
-      image: new Icon(({
-        color: '#8959A8',
-        crossOrigin: 'anonymous',
-        src: this.markerSettings.defaultIcon,
-        size: this.markerSettings.size
-      }))
-    }));
-    return feature;
-  }
+    getFeature(marker: IMarker): Feature {
+        const feature = new Feature({
+            geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
+            name: marker.title,
+            value: marker.pollutions[0].value
+        });
+        /*         feature.setStyle(new Style({
+                    image: new Icon(({
+                        color: '#8959A8',
+                        crossOrigin: 'anonymous',
+                        src: this.markerSettings.defaultIcon,
+                        size: this.markerSettings.size
+                    }))
+                })); */
+        return feature;
+    }
 
-  ngOnInit() {
-    this.markers = this.service.getPoints();
-    this.features = this.markers.map(m => this.getFeature(m));
+    ngOnInit() {
+        this.markers = this.service.getPoints();
+        this.features = this.markers.map(m => this.getFeature(m));
 
-    const vectorSource = new VectorSource({
-      features: this.features
-    });
+        const vectorSource = new VectorSource({
+            features: []
+        });
 
-    const vectorLayer = new Vector({
-      source: vectorSource
-    });
+        const vectorLayer = new Vector({
+            source: vectorSource
+        });
 
-    const rasterLayer = new Tile({
-      source: new TileJSON({
-        url: 'https://api.tiles.mapbox.com/v3/mapbox.geography-class.json?secure',
-        crossOrigin: ''
-      })
-    });
-
-    // Belarus
-    // vector layer
-    const strokeVector = new Vector({
-      source: new VectorSource({
-        format: new GeoJSON(),
-        url: './assets/data/geo.json'
-      }),
-      style: (feature, res) => {
-        if (feature.get('name') == 'Belarus') {
-          return new Style({
-            stroke: new Stroke({
-              color: 'gray',
-              width: 4
+        const rasterLayer = new Tile({
+            source: new TileJSON({
+                url: 'https://api.tiles.mapbox.com/v3/mapbox.geography-class.json?secure',
+                crossOrigin: ''
             })
-          });
+        });
+
+        // Belarus
+        // vector layer
+        const strokeVector = new Vector({
+            source: new VectorSource({
+                format: new GeoJSON(),
+                url: './assets/data/geo.json'
+            }),
+            style: (feature, res) => {
+                if (feature.get('name') === 'Belarus') {
+                    return new Style({
+                        stroke: new Stroke({
+                            color: 'gray',
+                            width: 4
+                        })
+                    });
+                }
+            }
+        });
+
+        // Create map
+        this.source = new SourceOSM({
+        });
+
+        this.layer = new Tile({
+            source: this.source
+        });
+
+        this.view = new View({
+            center: fromLonLat([this.mapCenter.longtitude, this.mapCenter.latitude]),
+            zoom: 8
+        });
+
+        const source = new VectorSource({
+            features: this.features
+        });
+
+        this.clusterSource = new Cluster({
+            distance: this.distance,
+            source: source
+        });
+
+        this.clusters = new Vector({
+            source: this.clusterSource,
+            style: (feature) => this.getStyle(feature)
+        });
+
+        this.map = new Map({
+
+            controls: defaultControls().extend([
+                new ZoomToExtent({
+                    extent: [
+                        813079.7791264898, 5929220.284081122,
+                        848966.9639063801, 5936863.986909639
+                    ]
+                })
+            ]),
+            target: 'map',
+            layers: [this.layer, vectorLayer, strokeVector, this.clusters],
+            view: this.view
+        });
+
+        /*         navigator.geolocation.getCurrentPosition(pos => {
+                    const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
+                    this.map.getView().animate({ center: coords, zoom: 10 });
+                }); */
+
+        this.features.map(feature => vectorSource.addFeature(feature));
+        this.features.map(f => this.addAnimation(f));
+        this.map.updateSize();
+    }
+    onDistance(e) {
+        console.log('On Distance', e);
+        this.distance = e;
+        if (this.clusterSource && this.distance) {
+            // this.clusterSource.setDistance(this.distance);
+            // this.map.render();
         }
-      }
-    });
+    }
 
-    // Create map
-    this.source = new SourceOSM({
-    });
+    getStyle(feature) {
+        const size = feature.get('features').length;
+        let style = this.styleCache[size];
+        if (!style) {
+            const color = size > 25 ? '192,0,0' : size > 8 ? '255,128,0' : '0,128,0';
+            const radius = Math.max(8, Math.min(size * 0.75, 20));
+            const d = 2 * Math.PI * radius / 6;
+            const dash = [0, d, d, d, d, d, d];
+            style = this.styleCache[size] = new Style(
+                {
+                    fillColor: '#ffff00',
+                    strokeColor: '#3399ff',
+                    pointRadius: 8,
+                    strokeWidth: 5,
+                    strokeOpacity: 0.2,
+                    image: new Circle(
+                        {
+                            radius: radius,
+                            stroke: new Stroke(
+                                {
+                                    color: 'rgba(' + color + ',0.5)',
+                                    width: 15,
+                                    lineDash: dash,
+                                    lineCap: 'butt'
+                                }),
+                            fill: new Fill(
+                                {
+                                    color: 'rgba(' + color + ',1)'
+                                })
+                        }),
+                    text: new Text(
+                        {
+                            text: this.calc(feature.get('features')),
+                            fill: new Fill(
+                                {
+                                    color: '#fff'
+                                })
+                        })
+                });
+        }
+        return [style];
+    }
 
-    this.layer = new Tile({
-      source: this.source
-    });
+    calc(features: Feature[]) {
+        let acc = 0;
+        features.forEach(f => {
+            acc = parseInt(f.get('value'), 10) + acc;
+        });
+        return acc.toString();
 
-    this.view = new View({
-      center: fromLonLat([this.mapCenter.longtitude, this.mapCenter.latitude]),
-      zoom: 8
-    });
+    }
 
-    this.map = new Map({
+    // animation
+    pointToProj(coordinates) {
+        const lon = parseFloat(coordinates[0]);
+        const lat = parseFloat(coordinates[1]);
+        return transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
+    }
 
-      controls: defaultControls().extend([
-        new ZoomToExtent({
-          extent: [
-            813079.7791264898, 5929220.284081122,
-            848966.9639063801, 5936863.986909639
-          ]
-        })
-      ]),
-      target: 'map',
-      layers: [this.layer, vectorLayer, strokeVector],
-      view: this.view
-    });
+    pulsatingCircleAnimation(coor) {
+        const element = document.createElement('div');
+        element.setAttribute('class', 'gps_ring');
+        // const coorProjection = this.pointToProj(coor);
+        return new Overlay({
+            element: element,
+            position: coor,
+            positioning: 'center-center',
+            offset: [1, 1]
+        });
+    }
 
-    navigator.geolocation.getCurrentPosition(pos => {
-      const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
-      this.map.getView().animate({ center: coords, zoom: 10 });
-    });
+    addAnimation(feature) {
 
-  }
+        let coordinates;
+        let overlay;
+        coordinates = (<Point>feature.getGeometry()).getCoordinates();
+        overlay = this.pulsatingCircleAnimation(coordinates);
+        this.map.addOverlay(overlay);
+    }
+
+
+    /* animateLayer(layer) {
+        let animationTween = new Tween();
+        const begin = {
+            x: 5
+        };
+        const end = {
+            x: 20
+        };
+        const callbacks = {
+            eachStep: Function.bind(animate, layer),
+            done: () => {
+                animationTween = new OpenLayers.Tween(easeInOut);
+                begin.x = (begin.x === 20 ? 5 : 20);
+                end.x = (end.x === 20 ? 5 : 20);
+                animationTween.start(begin, end, 80, {
+                    callbacks: callbacks
+                });
+            }
+        };
+        animationTween.start(begin, end, 80, {
+            callbacks: callbacks
+        });
+
+        function animate(delta) {
+            console.log(delta.x);
+            for (let i = 0; i < this.features.length; i++) {
+                this.features[i].style.strokeWidth = delta.x;
+                this.features[i].style.pointRadius = delta.x;
+            }
+            this.redraw();
+        }
+    } */
+
 }
