@@ -1,17 +1,19 @@
 import 'ol/ol.css';
+import 'ol-popup/src/ol-popup.css';
 import { Component, OnInit } from '@angular/core';
 import Map from 'ol/Map';
 import XYZ from 'ol/source/XYZ';
 import View from 'ol/View';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
+import Polygon from 'ol/geom/Polygon';
 import { fromLonLat, transform } from 'ol/proj';
 
 import { Tile } from 'ol/layer';
 import { Vector } from 'ol/layer';
 import TileJSON from 'ol/source/TileJSON.js';
 import VectorSource from 'ol/source/Vector.js';
-import { Icon, Style, Stroke, Fill, Circle, Text } from 'ol/style';
+import { Style, Stroke, Fill, Circle, Text } from 'ol/style';
 import { PollutionService } from '../../services/pollution.service';
 import { IGeoPoint } from '../models/geo-point.interface';
 import { IMarker } from '../models/marker.interface';
@@ -23,6 +25,15 @@ import { Cluster } from 'ol/source';
 import { unByKey } from 'ol/Observable.js';
 import { easeOut } from 'ol/easing.js';
 import Overlay from 'ol/Overlay.js';
+import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
+import ConvexHull from 'ol-ext/geom/ConvexHull';
+import { SelectCluster } from 'ol/interaction.js';
+import * as $ from 'jquery';
+import { toStringHDMS } from 'ol/coordinate.js';
+import TileLayer from 'ol/layer/Tile.js';
+import { toLonLat } from 'ol/proj.js';
+import Popup from 'ol-popup';
+
 
 @Component({
     selector: 'app-map',
@@ -129,10 +140,19 @@ export class MapComponent implements OnInit {
             source: source
         });
 
-        this.clusters = new Vector({
-            source: this.clusterSource,
-            style: (feature) => this.getStyle(feature)
-        });
+        /*         this.clusters = new Vector({
+                    source: this.clusterSource,
+                    style: (feature) => this.getStyle(feature)
+                }); */
+
+        this.clusters = new AnimatedCluster(
+            {
+                name: 'Cluster',
+                source: this.clusterSource,
+                animationDuration: 700, // $('#animatecluster').prop('checked') ? 700 : 0,
+                // Cluster style
+                style: (feature) => this.getStyle(feature)
+            });
 
         this.map = new Map({
 
@@ -157,7 +177,40 @@ export class MapComponent implements OnInit {
         this.features.map(feature => vectorSource.addFeature(feature));
         this.features.map(f => this.addAnimation(f));
         this.map.updateSize();
+
+        const popup = new Popup({
+            element: document.getElementById('popup'),
+            autoPan: true,
+            autoPanAnimation: {
+            duration: 250
+            }
+        });
+        this.map.addOverlay(popup);
+        this.map.on('pointermove', (evt) => {
+            if (evt.dragging) {
+                popup.hide();
+                return;
+            }
+            this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate);
+        });
     }
+
+    displayFeatureInfo(pixel, popup, coord) {
+        const features = [];
+        this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+            features.push(feature);
+        });
+
+        if (features.length > 0) {
+            popup.hide();
+            const v = this.getFeatureValue(features);
+            popup.show(coord, `<div><h2>${v.name}</h2><p>Value: ${v.value}</p></div>`);
+        } else {
+            popup.hide();
+        }
+    }
+
+
     onDistance(e) {
         console.log('On Distance', e);
         this.distance = e;
@@ -208,6 +261,13 @@ export class MapComponent implements OnInit {
                 });
         }
         return [style];
+    }
+
+    getFeatureValue(features: Feature[]) {
+        const value = features[0].get('features')[0].get('value');
+        const name = features[0].get('features')[0].get('name');
+
+        return { name, value };
     }
 
     calc(features: Feature[]) {
