@@ -207,7 +207,7 @@ export class MapComponent implements OnInit {
         if (features.length > 0) {
             popup.hide();
             const data = this.service.getFeatureValue(features);
-            let html = `<div><h2>${data.name}</h2><h4>${data.desc}</h4>`;
+            let html = `<div><h3>${data.name}</h3><h5>${data.desc}</h5>`;
             data.value.forEach(v => {
                 html += `<div><b>${v.name}: </b>${v.value} ${v.dim}</div>`;
             });
