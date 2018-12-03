@@ -97,11 +97,12 @@ $r: 30px;
     100% {transform: scale(1.2, 1.2); opacity: 0.0;}
 }
   .ol-popup {
-  border: 1px solid rgb(146, 146, 146);
-  border-radius: 4px;
-  background-color: rgb(219, 219, 219);
-  opacity: 1;
-  padding: 1rem;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  opacity: 0.7;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    border: 1px solid rgb(146, 146, 146);
+    border-radius: 4px;
+    background-color: rgb(219, 219, 219);
+    opacity: 1;
+    padding: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    opacity: 0.7;
 }

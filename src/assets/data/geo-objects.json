@@ -1,0 +1,32 @@
+{
+    "gomel": {
+        "title": "Гомель",
+        "description": "Гомельская ТЭЦ",
+        "latitude": 52.4345,
+        "longtitude": 30.9754
+    },
+    "minsk": {
+        "title": "Минск",
+        "description": "Минская ТЭЦ-4, Сухарево",
+        "latitude": 53.893009,
+        "longtitude": 27.567444
+    },
+    "bobryisk": {
+        "title": "Бобруйск",
+        "description": "Белшина",
+        "longtitude": 29.2213753,
+        "latitude": 53.1446069
+    },
+    "zhlobin": {
+        "title": "Жлобин",
+        "description": "Белорусский металлургический завод",
+        "latitude": 52.8926,
+        "longtitude": 30.024
+    },
+    "mozyr": {
+        "title": "Мозырь",
+        "description": "Мозырский НПЗ",
+        "latitude": 52.0495,
+        "longtitude": 29.2456
+    }
+}

@@ -8,6 +8,8 @@ import { MainLayoutComponent } from './components/main-layout/main-layout.compon
 import { MapComponent } from './components/map/map.component';
 import { PollutionService } from './services/pollution.service';
 import { DistanceComponent } from './components/distance/distance.component';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpModule } from '@angular/http';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -21,6 +23,8 @@ export function configServiceFactory() {
     DistanceComponent
   ],
   imports: [
+    HttpModule,
+    HttpClientModule,
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { PollutionService } from '../../services/pollution.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-main-layout',
@@ -6,10 +8,15 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./main-layout.component.scss']
 })
 export class MainLayoutComponent implements OnInit {
-
-  constructor() { }
+  isReady = false;
+  constructor(private dataService: PollutionService) { }
 
   ngOnInit() {
+    this.dataService.isInitialized
+      .pipe()
+      .subscribe(result => {
+        this.isReady = result.dataReady && result.objectsReady;
+      });
   }
 
 }

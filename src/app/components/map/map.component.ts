@@ -33,6 +33,7 @@ import { toStringHDMS } from 'ol/coordinate.js';
 import TileLayer from 'ol/layer/Tile.js';
 import { toLonLat } from 'ol/proj.js';
 import Popup from 'ol-popup';
+import { PollutionModel } from '../models/pollution.model';
 
 
 @Component({
@@ -58,7 +59,7 @@ export class MapComponent implements OnInit {
         this.mapCenter = service.getMapCenter();
         this.markerSettings = {
             defaultIcon: 'assets/images/info.png',
-            size: [32, 32]
+            size: [42, 42]
         };
     }
 
@@ -67,7 +68,9 @@ export class MapComponent implements OnInit {
         const feature = new Feature({
             geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
             name: marker.title,
-            value: marker.pollutions[0].value
+            description: marker.description,
+            value: marker.pollutions,
+            size: this.markerSettings.size
         });
         /*         feature.setStyle(new Style({
                     image: new Icon(({
@@ -203,8 +206,13 @@ export class MapComponent implements OnInit {
 
         if (features.length > 0) {
             popup.hide();
-            const v = this.getFeatureValue(features);
-            popup.show(coord, `<div><h2>${v.name}</h2><p>Value: ${v.value}</p></div>`);
+            const data = this.service.getFeatureValue(features);
+            let html = `<div><h2>${data.name}</h2><h4>${data.desc}</h4>`;
+            data.value.forEach(v => {
+                html += `<div><b>${v.name}: </b>${v.value} ${v.dim}</div>`;
+            });
+            html += '</div>';
+            popup.show(coord, html);
         } else {
             popup.hide();
         }
@@ -252,7 +260,7 @@ export class MapComponent implements OnInit {
                         }),
                     text: new Text(
                         {
-                            text: this.calc(feature.get('features')),
+                            text: this.service.calcAggregatedValue(feature.get('features')),
                             fill: new Fill(
                                 {
                                     color: '#fff'
@@ -261,22 +269,6 @@ export class MapComponent implements OnInit {
                 });
         }
         return [style];
-    }
-
-    getFeatureValue(features: Feature[]) {
-        const value = features[0].get('features')[0].get('value');
-        const name = features[0].get('features')[0].get('name');
-
-        return { name, value };
-    }
-
-    calc(features: Feature[]) {
-        let acc = 0;
-        features.forEach(f => {
-            acc = parseInt(f.get('value'), 10) + acc;
-        });
-        return acc.toString();
-
     }
 
     // animation
