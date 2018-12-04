@@ -7,7 +7,7 @@ import View from 'ol/View';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
-import { fromLonLat, transform } from 'ol/proj';
+import { fromLonLat } from 'ol/proj';
 
 import { Tile } from 'ol/layer';
 import { Vector } from 'ol/layer';
@@ -54,6 +54,7 @@ export class MapComponent implements OnInit {
     distance = 90;
     clusterSource: any;
     clusters: any;
+    belarusBounds = [23.13474, 51.23751, 32.80613, 56.20996 ];
 
     constructor(private service: PollutionService) {
         this.mapCenter = service.getMapCenter();
@@ -219,14 +220,14 @@ export class MapComponent implements OnInit {
     }
 
 
-    onDistance(e) {
+/*     onDistance(e) {
         console.log('On Distance', e);
         this.distance = e;
         if (this.clusterSource && this.distance) {
             // this.clusterSource.setDistance(this.distance);
             // this.map.render();
         }
-    }
+    } */
 
     getStyle(feature) {
         const size = feature.get('features').length;
@@ -272,11 +273,11 @@ export class MapComponent implements OnInit {
     }
 
     // animation
-    pointToProj(coordinates) {
+  /*   pointToProj(coordinates) {
         const lon = parseFloat(coordinates[0]);
         const lat = parseFloat(coordinates[1]);
         return transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
-    }
+    } */
 
     pulsatingCircleAnimation(coor) {
         const element = document.createElement('div');

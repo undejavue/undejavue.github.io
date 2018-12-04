@@ -29,7 +29,7 @@ export class PollutionService {
 
     init() {
         this.httpClient
-            .get('/assets/data/pollutions.json', {
+            .get('assets/data/pollutions.json', {
                 headers: {
                     'content-type': 'application/json'
                 }
@@ -40,7 +40,7 @@ export class PollutionService {
                 this.isInitialized.next({ dataReady: true, objectsReady: this.objectsReady });
             });
         this.httpClient
-            .get('/assets/data/geo-objects.json', {
+            .get('assets/data/geo-objects.json', {
                 headers: {
                     'content-type': 'application/json'
                 }

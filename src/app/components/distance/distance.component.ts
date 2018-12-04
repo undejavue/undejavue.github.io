@@ -18,4 +18,6 @@ export class DistanceComponent implements OnInit {
     });
   }
 
+  onSubmit(e) {}
+
 }
