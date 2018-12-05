@@ -33,7 +33,7 @@ import { toStringHDMS } from 'ol/coordinate.js';
 import TileLayer from 'ol/layer/Tile.js';
 import { toLonLat } from 'ol/proj.js';
 import Popup from 'ol-popup';
-import { PollutionModel } from '../models/pollution.model';
+import { IPollutionModel } from '../models/pollution.interface';
 
 
 @Component({
@@ -69,7 +69,7 @@ export class MapComponent implements OnInit {
         const feature = new Feature({
             geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
             name: marker.title,
-            description: marker.description,
+            description: marker.address,
             value: marker.pollutions,
             size: this.markerSettings.size
         });

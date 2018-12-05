@@ -15,7 +15,7 @@ export class MainLayoutComponent implements OnInit {
     this.dataService.isInitialized
       .pipe()
       .subscribe(result => {
-        this.isReady = result.dataReady && result.objectsReady;
+        this.isReady = result;
       });
   }
 

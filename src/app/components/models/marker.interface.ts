@@ -1,7 +1,8 @@
-import { PollutionModel } from './pollution.model';
+import { IPollutionModel } from './pollution.interface';
 import { IMapPoint } from './map-point.interface';
 import { IGeoPoint } from './geo-point.interface';
 
 export interface IMarker extends IMapPoint {
-    pollutions: PollutionModel[];
+    emissions: IPollutionModel[];
+    concentrations: IPollutionModel[];
 }
