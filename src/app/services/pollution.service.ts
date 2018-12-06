@@ -101,11 +101,11 @@ export class PollutionService {
         this.data.objects.map(obj => {
             const item = {
                 ...obj,
-                ...this.data.pollutions,
+                datetime: this.data.pollutions.datetime
             };
             const values = this.data.pollutions.values.find(p => p.id === obj.id);
             if (values) {
-                item.emissions = values.emmisions;
+                item.emissions = values.emissions;
                 item.concentrations = values.concentrations;
             }
             result.push(item);
@@ -125,8 +125,8 @@ export class PollutionService {
                         longtitude: obj.longtitude,
                         latitude: obj.latitude
                     },
-                    emissions: this.getEmissions(obj.emissions),
-                    concentrations: this.getConcentrations(obj.concentrations)
+                    emissions: this.getPollution(obj.emissions, PollutionType.Emission),
+                    concentrations: this.getPollution(obj.concentrations, PollutionType.Concentration)
                 };
                 markers.push(m);
             });
@@ -138,7 +138,7 @@ export class PollutionService {
     getDimension(type: PollutionType) {
         switch (type) {
             case PollutionType.Concentration: return this.defaults.conc;
-            case PollutionType.Emission: return this.defaults.emmision;
+            case PollutionType.Emission: return this.defaults.emission;
         }
     }
 

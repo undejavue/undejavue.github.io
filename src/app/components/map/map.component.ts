@@ -70,7 +70,7 @@ export class MapComponent implements OnInit {
             geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
             name: marker.title,
             description: marker.address,
-            value: marker.pollutions,
+            value: marker.emissions,
             size: this.markerSettings.size
         });
         /*         feature.setStyle(new Style({
