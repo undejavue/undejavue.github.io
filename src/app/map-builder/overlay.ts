@@ -1,42 +1,74 @@
 
 import 'ol-popup/src/ol-popup.css';
-import Overlay from 'ol/Overlay.js';
-import { toStringHDMS } from 'ol/coordinate.js';
-import { toLonLat } from 'ol/proj.js';
-import * as $ from 'jquery';
-import Popup from 'ol-popup';
-import { transform } from 'ol/proj';
+import { IPollutionModel } from '../components/models/pollution.interface';
+import { IDataModelItem } from '../components/models/data-model-item.interface';
+import { IObjectInfo } from '../components/models/obj-info.interface';
 
-export const addOverlay = (map) => {
-    /* const popup = new Overlay({
-        element: document.getElementById('popup')
+const getTemplate = (data: IDataModelItem,
+    emissions: string,
+    concentrations: string,
+    dimEm: string,
+    dimConc: string,
+    info: string) => `
+<div class="popup-content">
+<div class="header"><div class="title p-1">${data.title}</div><div class="address p-1">${data.address}</div></div>
+<div class="content">
+<div class="tab">
+<button class="tablinks" onclick="openTab(event, 'objemissions')">Выбросы</button>
+<button class="tablinks" onclick="openTab(event, 'objconcentrations')">Концентрация</button>
+<button class="tablinks" onclick="openTab(event, 'objinformation')">Информация</button>
+</div>
+
+<div id="objemissions" class="tabcontent">
+<div class="subtitle">Выбросы загрязняющих веществ, ${dimEm}</div>
+${emissions}
+${getDateString(data.datetime)}
+</div>
+
+
+<div id="objconcentrations" class="tabcontent">
+<div class="subtitle">Концентрации загрязняющих веществ, ${dimConc}</div>
+${concentrations}
+${getDateString(data.datetime)}
+</div>
+
+
+<div id="objinformation" class="tabcontent">
+<div class="info-block">${info}</div>
+</div></div></div>`;
+
+const getTabled = (arr: IPollutionModel[]) => {
+    let table = `<table class="pollution-table">`;
+    arr.forEach(el => {
+        table += `<tr><td>${el.name} (${el.desc})</td><td>${el.value}</td></tr>`;
     });
-    map.addOverlay(popup);
 
-    map.on('click', (evt) => {
-        const element = popup.getElement();
-        const coordinate = evt.coordinate;
-        const hdms = toStringHDMS(toLonLat(coordinate));
-
-        $(element).popover('destroy');
-        popup.setPosition(coordinate);
-        ($(element) as any).popover({
-            placement: 'top',
-            animation: false,
-            html: true,
-            content: '<p>The location you clicked was:</p><code>' + hdms + '</code>'
-        });
-        ($(element) as any).popover('show');
-    }); */
-
-
-    const popup = new Popup({
-        element: document.getElementById('popup')
-    });
-    map.addOverlay(popup);
-
-    map.on('singleclick', function (evt) {
-        const prettyCoord = toStringHDMS(transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'), 2);
-        popup.show(evt.coordinate, '<div><h2>Coordinates</h2><p>' + prettyCoord + '</p></div>');
-    });
+    table += '</table>';
+    return table;
 };
+
+const getInfo = (info: IObjectInfo): string => {
+    let html = `<div class="subtitle">${info.description}</div>`;
+    html += info.function ? `<div class="function">Назначение системы: ${info.function}</div>` : '';
+    html += info.contentHeader ? `<div class="function">${info.contentHeader}</div>` : '';
+    html += '<ul class="info-items">';
+    info.content.forEach(item => {
+        html += `<li class="info-item">${item}</li>`;
+    });
+    html += '</ul>';
+    return html;
+};
+
+const getDateString = (date: string) => {
+    return `<div class="flex-row"><div class="datetime">Обновлено: </div><div class="datetime-value">${date}</div></div>`;
+};
+
+export const getPopupWindow = (data: IDataModelItem, options: any) => {
+
+    const emissions = getTabled(data.emissions);
+    const conc = getTabled(data.concentrations);
+    const info = getInfo(data.information);
+
+    return getTemplate(data, emissions, conc, options.dimEm, options.dimConc, info);
+};
+

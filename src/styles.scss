@@ -102,9 +102,156 @@ $r: 30px;
     line-height: 1;
     border: 1px solid rgb(146, 146, 146);
     border-radius: 4px;
-    background-color: rgb(219, 219, 219);
-    opacity: 1;
-    padding: 1rem;
+    // padding: 1rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    opacity: 0.7;
+    opacity: 0.85;
+    max-width: 400px;
+}
+.ol-popup-closer {
+  text-decoration: none;
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: gray;
+}
+
+.ol-popup-closer:after {
+  content: "✖";
+}
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(236, 236, 236);
+
+  .header {
+    padding: 1rem;
+    background-color: white;
+    // border-bottom: 1px solid lightgray;
+  }
+
+  .title {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  .subtitle {
+    font-size:  0.8rem;
+    font-weight: 700;
+    padding: 0.5rem 0;
+  }
+  .info-block {
+    line-height: 1.2;
+  }
+  .description {
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 0.9;
+  }
+  .function {
+    @extend .description;
+    font-size: 0.7rem;
+    margin: 0.4rem 0 0 0;
+  }
+  .info-item {
+    font-size: 0.7rem;
+  }
+  .info-items {
+    padding: 0 1rem 0 1.5rem;
+  }
+  .address {
+    font-size: 0.8rem;
+    font-weight: normal;
+  }
+  .content {
+    justify-content: flex-start;
+  }
+  .datetime {
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgb(0, 128, 64);
+    font-weight: 500;
+    margin: 0.8rem 0 0 0;
+  }
+  .datetime-value {
+    @extend .datetime;
+    font-weight: 600;
+  }
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: baseline;
+}
+
+.p-1 {
+  padding: 0.2rem;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+.p-3 {
+  padding: 0.8rem;
+}
+
+// tab selector
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 0.8rem;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.pollution-table {
+  width: 100%;
+}
+
+// Pollutions table
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2
 }

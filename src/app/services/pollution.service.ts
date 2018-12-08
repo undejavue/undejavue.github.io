@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { PollutionType } from '../components/models/pollution.enum';
+import { IDataModelItem } from '../components/models/data-model-item.interface';
 
 export interface IInitialized {
     paramsReady: boolean;
@@ -36,6 +37,7 @@ export class PollutionService {
     data: IPolutionsData;
     dataModel: any[];
     defaults: any;
+    markers: IMarker[];
 
     constructor(private httpClient: HttpClient) {
         this.init();
@@ -50,7 +52,7 @@ export class PollutionService {
                 }
             })
             .subscribe(res => {
-                this.data.parametres = res;
+                this.data.parametres = res['params'];
                 this.defaults = res['defaults'];
                 this.processReady = { ...this.processReady, paramsReady: true };
                 this.initProcess.next(this.processReady);
@@ -99,22 +101,31 @@ export class PollutionService {
     createDataModel() {
         const result = [];
         this.data.objects.map(obj => {
-            const item = {
-                ...obj,
-                datetime: this.data.pollutions.datetime
-            };
             const values = this.data.pollutions.values.find(p => p.id === obj.id);
-            if (values) {
-                item.emissions = values.emissions;
-                item.concentrations = values.concentrations;
-            }
+            const item: IDataModelItem = {
+                id: obj.id,
+                title: obj.title,
+                latitude: obj.latitude,
+                longtitude: obj.longtitude,
+                address: obj.address,
+                datetime: this.data.pollutions.datetime,
+                information: {
+                    imgUrl: obj.imgUrl,
+                    description: obj.description,
+                    function: obj.function,
+                    contentHeader: obj.contentHeader,
+                    content: obj.content
+                },
+                emissions: this.getPollution(values.emissions, PollutionType.Emission),
+                concentrations: this.getPollution(values.concentrations, PollutionType.Concentration)
+            };
             result.push(item);
         });
         this.dataModel = result;
     }
 
     getPoints(): IMarker[] {
-        const markers = [];
+        this.markers = new Array<IMarker>();
         if (this.dataModel) {
             this.dataModel.map(obj => {
                 const m: IMarker = {
@@ -124,13 +135,11 @@ export class PollutionService {
                     geo: {
                         longtitude: obj.longtitude,
                         latitude: obj.latitude
-                    },
-                    emissions: this.getPollution(obj.emissions, PollutionType.Emission),
-                    concentrations: this.getPollution(obj.concentrations, PollutionType.Concentration)
+                    }
                 };
-                markers.push(m);
+                this.markers.push(m);
             });
-            return markers;
+            return this.markers;
         }
     }
 
@@ -142,13 +151,22 @@ export class PollutionService {
         }
     }
 
+    getPopupOptions() {
+        return {
+            dimEm: this.getDimension(PollutionType.Emission),
+            dimConc: this.getDimension(PollutionType.Concentration)
+        };
+    }
+
     getPollution(source, type: PollutionType) {
         const result: IPollutionModel[] = new Array<IPollutionModel>();
         Object.keys(source).forEach(key => {
+            const param = this.data.parametres.find(p => p.id === key);
             const pollution: IPollutionModel = {
                 name: key,
                 value: source[key],
-                dim: this.getDimension(type)
+                dim: this.getDimension(type),
+                desc: param ? param.name : ''
             };
             result.push(pollution);
         });
@@ -156,23 +174,27 @@ export class PollutionService {
         return result;
     }
 
-    getFeatureValue(features: any[]): { name: string, desc: string, value: IPollutionModel[] } {
+    getFeatureValue(features: any[]): IDataModelItem {
         const f = features[0].get('features')[0];
-        const value = f.get('value');
-        const name = f.get('name');
-        const desc = f.get('description');
+        const id = f.get('id');
 
-        return { name, desc, value };
+        if (id && this.dataModel) {
+            const result = this.dataModel.find(m => m.id === id);
+            return result;
+        }
+
+        return;
     }
 
     calcAggregatedValue(features: any[]) {
-        let acc = 0;
+        /* let acc = 0;
         features.forEach(f => {
             const p = f.get('value');
             acc = parseInt(p[0].value, 10) + acc;
         });
         const avg = acc / features.length;
-        return avg.toString();
+        return avg.toString(); */
+        return features ? features.length.toString() : '';
 
     }
 }

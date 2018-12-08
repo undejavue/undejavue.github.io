@@ -34,6 +34,8 @@ import TileLayer from 'ol/layer/Tile.js';
 import { toLonLat } from 'ol/proj.js';
 import Popup from 'ol-popup';
 import { IPollutionModel } from '../models/pollution.interface';
+import { IFeatureValue } from '../models/feature-value.interface';
+import { getPopupWindow } from '../../map-builder/overlay';
 
 
 @Component({
@@ -66,11 +68,12 @@ export class MapComponent implements OnInit {
 
 
     getFeature(marker: IMarker): Feature {
+
         const feature = new Feature({
+            id: marker.id,
             geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
             name: marker.title,
-            description: marker.address,
-            value: marker.emissions,
+            address: marker.address,
             size: this.markerSettings.size
         });
         /*         feature.setStyle(new Style({
@@ -85,6 +88,7 @@ export class MapComponent implements OnInit {
     }
 
     ngOnInit() {
+
         this.markers = this.service.getPoints();
         this.features = this.markers.map(m => this.getFeature(m));
 
@@ -179,7 +183,7 @@ export class MapComponent implements OnInit {
                 }); */
 
         this.features.map(feature => vectorSource.addFeature(feature));
-        this.features.map(f => this.addAnimation(f));
+        // this.features.map(f => this.addAnimation(f));
         this.map.updateSize();
 
         const popup = new Popup({
@@ -190,7 +194,7 @@ export class MapComponent implements OnInit {
             }
         });
         this.map.addOverlay(popup);
-        this.map.on('pointermove', (evt) => {
+        this.map.on('click', (evt) => {
             if (evt.dragging) {
                 popup.hide();
                 return;
@@ -205,14 +209,10 @@ export class MapComponent implements OnInit {
             features.push(feature);
         });
 
-        if (features.length > 0) {
+        if (features.length === 1) {
             popup.hide();
             const data = this.service.getFeatureValue(features);
-            let html = `<div><h3>${data.name}</h3><h5>${data.desc}</h5>`;
-            data.value.forEach(v => {
-                html += `<div><b>${v.name}: </b>${v.value} ${v.dim}</div>`;
-            });
-            html += '</div>';
+            const html = getPopupWindow(data, this.service.getPopupOptions());
             popup.show(coord, html);
         } else {
             popup.hide();
@@ -243,7 +243,7 @@ export class MapComponent implements OnInit {
                     strokeColor: '#3399ff',
                     pointRadius: 8,
                     strokeWidth: 5,
-                    strokeOpacity: 0.2,
+                    strokeOpacity: 0.5,
                     image: new Circle(
                         {
                             radius: radius,
@@ -287,7 +287,7 @@ export class MapComponent implements OnInit {
             element: element,
             position: coor,
             positioning: 'center-center',
-            offset: [1, 1]
+            offset: [0, 0]
         });
     }
 
@@ -300,7 +300,7 @@ export class MapComponent implements OnInit {
         this.map.addOverlay(overlay);
     }
 
-
+    
     /* animateLayer(layer) {
         let animationTween = new Tween();
         const begin = {
