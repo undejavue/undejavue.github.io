@@ -3,34 +3,35 @@ import { IGeoPoint } from '../components/models/geo-point.interface';
 import { IPollutionModel } from '../components/models/pollution.interface';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, forkJoin } from 'rxjs';
 import { PollutionType } from '../components/models/pollution.enum';
 import { IDataModelItem } from '../components/models/data-model-item.interface';
+import { ConfigService } from './config.service';
 
 export interface IInitialized {
     paramsReady: boolean;
     objectsReady: boolean;
     pollutionsReady: boolean;
+    geoReady: boolean;
+    countryReady: boolean;
 }
 
 export interface IPolutionsData {
     parametres?: any;
     objects?: any;
     pollutions?: any;
+    geo?: any;
 }
 
 @Injectable()
 export class PollutionService {
-    minsk: IGeoPoint = {
-        latitude: 53.893009,
-        longtitude: 27.567444
-    };
-
     public isInitialized: BehaviorSubject<boolean> = new BehaviorSubject(false);
     processReady: IInitialized = {
         paramsReady: false,
         objectsReady: false,
-        pollutionsReady: false
+        pollutionsReady: false,
+        geoReady: false,
+        countryReady: false
     };
     private initProcess: BehaviorSubject<IInitialized> = new BehaviorSubject(this.processReady);
 
@@ -38,13 +39,39 @@ export class PollutionService {
     dataModel: any[];
     defaults: any;
     markers: IMarker[];
+    country: any;
 
-    constructor(private httpClient: HttpClient) {
+    constructor(private httpClient: HttpClient, private config: ConfigService) {
         this.init();
     }
 
     init() {
         this.data = {};
+        /*         const geo$ = this.httpClient
+                .get('assets/data/geo-objects.json', {
+                    headers: {
+                        'content-type': 'application/json'
+                    }
+                });
+                const info$ = this.httpClient
+                .get('assets/data/info-objects.json', {
+                    headers: {
+                        'content-type': 'application/json'
+                    }
+                });
+                const geoInfo$ = forkJoin(geo$, info$).pipe().subscribe(r => {
+                }); */
+
+        this.httpClient.get('assets/data/geo-objects.json', {
+            headers: {
+                'content-type': 'application/json'
+            }
+        })
+            .subscribe(res => {
+                this.data.geo = res;
+                this.processReady = { ...this.processReady, geoReady: true };
+                this.initProcess.next(this.processReady);
+            });
         this.httpClient
             .get('assets/data/parametres.json', {
                 headers: {
@@ -58,7 +85,7 @@ export class PollutionService {
                 this.initProcess.next(this.processReady);
             });
         this.httpClient
-            .get('assets/data/geo-objects.json', {
+            .get('assets/data/info-objects.json', {
                 headers: {
                     'content-type': 'application/json'
                 }
@@ -79,8 +106,20 @@ export class PollutionService {
                 this.processReady = { ...this.processReady, pollutionsReady: true };
                 this.initProcess.next(this.processReady);
             });
+        this.httpClient
+            .get('assets/data/belarus.geo.json', {
+                headers: {
+                    'content-type': 'application/json'
+                }
+            })
+            .subscribe(res => {
+                this.country = res;
+                this.processReady = { ...this.processReady, countryReady: true };
+                this.initProcess.next(this.processReady);
+            });
+
         this.initProcess.pipe().subscribe(p => {
-            const ready = p.objectsReady && p.paramsReady && p.pollutionsReady;
+            const ready = p.objectsReady && p.paramsReady && p.pollutionsReady && p.countryReady && p.geoReady;
             if (!ready) {
                 this.isInitialized.next(false);
             } else {
@@ -88,25 +127,22 @@ export class PollutionService {
                 this.isInitialized.next(true);
             }
         });
-
     }
 
-    getMapCenter(): IGeoPoint {
-        return {
-            latitude: this.minsk.latitude,
-            longtitude: this.minsk.longtitude
-        };
+    getContryCoordinates() {
+        return this.country.features[0].geometry.coordinates;
     }
 
     createDataModel() {
         const result = [];
         this.data.objects.map(obj => {
             const values = this.data.pollutions.values.find(p => p.id === obj.id);
+            const geo = this.data.geo.find(g => g.id === obj.id);
             const item: IDataModelItem = {
                 id: obj.id,
                 title: obj.title,
-                latitude: obj.latitude,
-                longtitude: obj.longtitude,
+                latitude: geo.latitude,
+                longtitude: geo.longtitude,
                 address: obj.address,
                 datetime: this.data.pollutions.datetime,
                 information: {
@@ -194,7 +230,8 @@ export class PollutionService {
         });
         const avg = acc / features.length;
         return avg.toString(); */
-        return features ? features.length.toString() : '';
+        return features ? features.length.toString()
+            : '';
 
     }
 }

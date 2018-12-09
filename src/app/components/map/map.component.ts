@@ -7,7 +7,7 @@ import View from 'ol/View';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, transformExtent } from 'ol/proj';
 
 import { Tile } from 'ol/layer';
 import { Vector } from 'ol/layer';
@@ -36,6 +36,10 @@ import Popup from 'ol-popup';
 import { IPollutionModel } from '../models/pollution.interface';
 import { IFeatureValue } from '../models/feature-value.interface';
 import { getPopupWindow } from '../../map-builder/overlay';
+import { ConfigService } from '../../services/config.service';
+import { IMapOptions } from '../models/map-options.interface';
+import Crop from 'ol-ext/filter/Crop';
+import Mask from 'ol-ext/filter/Mask';
 
 
 @Component({
@@ -56,35 +60,16 @@ export class MapComponent implements OnInit {
     distance = 90;
     clusterSource: any;
     clusters: any;
-    belarusBounds = [23.13474, 51.23751, 32.80613, 56.20996 ];
+    belarusBounds = [23.13474, 51.23751, 32.80613, 56.20996];
+    mapOptions: IMapOptions;
 
-    constructor(private service: PollutionService) {
-        this.mapCenter = service.getMapCenter();
+    constructor(private service: PollutionService, private configService: ConfigService) {
+        this.mapOptions = this.configService.get('mapOptions') as IMapOptions;
+        this.mapCenter = this.mapOptions.center;
         this.markerSettings = {
             defaultIcon: 'assets/images/info.png',
             size: [42, 42]
         };
-    }
-
-
-    getFeature(marker: IMarker): Feature {
-
-        const feature = new Feature({
-            id: marker.id,
-            geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
-            name: marker.title,
-            address: marker.address,
-            size: this.markerSettings.size
-        });
-        /*         feature.setStyle(new Style({
-                    image: new Icon(({
-                        color: '#8959A8',
-                        crossOrigin: 'anonymous',
-                        src: this.markerSettings.defaultIcon,
-                        size: this.markerSettings.size
-                    }))
-                })); */
-        return feature;
     }
 
     ngOnInit() {
@@ -109,11 +94,12 @@ export class MapComponent implements OnInit {
 
         // Belarus
         // vector layer
+        const belarusSource = new VectorSource({
+            format: new GeoJSON(),
+            url: './assets/data/geo.json'
+        });
         const strokeVector = new Vector({
-            source: new VectorSource({
-                format: new GeoJSON(),
-                url: './assets/data/geo.json'
-            }),
+            source: belarusSource,
             style: (feature, res) => {
                 if (feature.get('name') === 'Belarus') {
                     return new Style({
@@ -121,6 +107,10 @@ export class MapComponent implements OnInit {
                             color: 'gray',
                             width: 4
                         })
+                    });
+                } else {
+                    return new Style({
+                        fillColor: '#ffff00',
                     });
                 }
             }
@@ -135,8 +125,10 @@ export class MapComponent implements OnInit {
         });
 
         this.view = new View({
+            extent: this.transform(this.mapOptions.bounds),
             center: fromLonLat([this.mapCenter.longtitude, this.mapCenter.latitude]),
-            zoom: 8
+            zoom: this.mapOptions.zoom,
+            minZoom: 7
         });
 
         const source = new VectorSource({
@@ -163,13 +155,9 @@ export class MapComponent implements OnInit {
             });
 
         this.map = new Map({
-
             controls: defaultControls().extend([
                 new ZoomToExtent({
-                    extent: [
-                        813079.7791264898, 5929220.284081122,
-                        848966.9639063801, 5936863.986909639
-                    ]
+                    extent: this.transform(this.mapOptions.bounds)
                 })
             ]),
             target: 'map',
@@ -177,20 +165,20 @@ export class MapComponent implements OnInit {
             view: this.view
         });
 
-        /*         navigator.geolocation.getCurrentPosition(pos => {
-                    const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
-                    this.map.getView().animate({ center: coords, zoom: 10 });
-                }); */
-
-        this.features.map(feature => vectorSource.addFeature(feature));
+        navigator.geolocation.getCurrentPosition(pos => {
+            const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
+            this.map.getView().animate({ center: coords, zoom: 10 });
+        });
         // this.features.map(f => this.addAnimation(f));
+        this.features.map(feature => vectorSource.addFeature(feature));
+
         this.map.updateSize();
 
         const popup = new Popup({
             element: document.getElementById('popup'),
             autoPan: true,
             autoPanAnimation: {
-            duration: 250
+                duration: 250
             }
         });
         this.map.addOverlay(popup);
@@ -201,6 +189,29 @@ export class MapComponent implements OnInit {
             }
             this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate);
         });
+    }
+
+    transform(extent) {
+        return transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
+    }
+
+    getFeature(marker: IMarker): Feature {
+        const feature = new Feature({
+            id: marker.id,
+            geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
+            name: marker.title,
+            address: marker.address,
+            size: this.markerSettings.size
+        });
+        /*         feature.setStyle(new Style({
+                    image: new Icon(({
+                        color: '#8959A8',
+                        crossOrigin: 'anonymous',
+                        src: this.markerSettings.defaultIcon,
+                        size: this.markerSettings.size
+                    }))
+                })); */
+        return feature;
     }
 
     displayFeatureInfo(pixel, popup, coord) {
@@ -218,16 +229,6 @@ export class MapComponent implements OnInit {
             popup.hide();
         }
     }
-
-
-/*     onDistance(e) {
-        console.log('On Distance', e);
-        this.distance = e;
-        if (this.clusterSource && this.distance) {
-            // this.clusterSource.setDistance(this.distance);
-            // this.map.render();
-        }
-    } */
 
     getStyle(feature) {
         const size = feature.get('features').length;
@@ -273,11 +274,11 @@ export class MapComponent implements OnInit {
     }
 
     // animation
-  /*   pointToProj(coordinates) {
-        const lon = parseFloat(coordinates[0]);
-        const lat = parseFloat(coordinates[1]);
-        return transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
-    } */
+    /*   pointToProj(coordinates) {
+          const lon = parseFloat(coordinates[0]);
+          const lat = parseFloat(coordinates[1]);
+          return transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
+      } */
 
     pulsatingCircleAnimation(coor) {
         const element = document.createElement('div');
@@ -300,7 +301,48 @@ export class MapComponent implements OnInit {
         this.map.addOverlay(overlay);
     }
 
-    
+    // https://github.com/openlayers/openlayers/blob/master/examples/feature-animation.js
+
+/*     flash(feature) {
+        const duration = 3000;
+        const start = new Date().getTime();
+        const listenerKey = tileLayer.on('postrender', animate);
+
+        function animate(event) {
+            const vectorContext = getVectorContext(event);
+            const frameState = event.frameState;
+            const flashGeom = feature.getGeometry().clone();
+            const elapsed = frameState.time - start;
+            const elapsedRatio = elapsed / duration;
+            // radius will be 5 at start and 30 at end.
+            const radius = easeOut(elapsedRatio) * 25 + 5;
+            const opacity = easeOut(1 - elapsedRatio);
+
+            const style = new Style({
+                image: new CircleStyle({
+                    radius: radius,
+                    stroke: new Stroke({
+                        color: 'rgba(255, 0, 0, ' + opacity + ')',
+                        width: 0.25 + opacity
+                    })
+                })
+            });
+
+            vectorContext.setStyle(style);
+            vectorContext.drawGeometry(flashGeom);
+            if (elapsed > duration) {
+                unByKey(listenerKey);
+                return;
+            }
+            // tell OpenLayers to continue postrender animation
+            map.render();
+        }
+    }
+
+    source.on('addfeature', function(e) {
+        flash(e.feature);
+    }); */
+
     /* animateLayer(layer) {
         let animationTween = new Tween();
         const begin = {
@@ -323,7 +365,7 @@ export class MapComponent implements OnInit {
         animationTween.start(begin, end, 80, {
             callbacks: callbacks
         });
-
+    
         function animate(delta) {
             console.log(delta.x);
             for (let i = 0; i < this.features.length; i++) {
@@ -333,5 +375,15 @@ export class MapComponent implements OnInit {
             this.redraw();
         }
     } */
+
+    addFilter() {
+        /*         const coords = this.service.getContryCoordinates();
+          const f = new Feature(new Polygon(coords));
+          const crop = new Crop({ feature: f, inner: false });
+          // this.layer.addFilter(crop);
+          const mask = new Mask({ feature: f, inner: false, fill: new Fill({ color: [255, 255, 255, 0.8] }) });
+          this.layer.addFilter(mask);
+          mask.set('active', false); */
+    }
 
 }

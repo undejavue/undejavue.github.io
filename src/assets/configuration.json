@@ -3,5 +3,13 @@
     "owner": "Simatek",
     "apiKey": "AIzaSyBV5qei-V2AZuT6we5iNgO22aG2h8zWj-E",
     "enableDebug": true,
-    "webApiUrl": "http://"
+    "webApiUrl": "http://",
+    "mapOptions": {
+        "center": {
+            "latitude": 53.893009,
+            "longtitude": 27.567444
+        },
+        "bounds": [ 23.13474, 51.23751, 32.80613, 56.20996 ],
+        "zoom": 8
+    }
 }
