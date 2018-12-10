@@ -40,7 +40,9 @@ import { ConfigService } from '../../services/config.service';
 import { IMapOptions } from '../models/map-options.interface';
 import Crop from 'ol-ext/filter/Crop';
 import Mask from 'ol-ext/filter/Mask';
-
+import { Control } from 'ol/control';
+import Select from 'ol/interaction/Select';
+import { click, pointerMove, altKeyOnly } from 'ol/events/condition.js';
 
 @Component({
     selector: 'app-map',
@@ -82,21 +84,21 @@ export class MapComponent implements OnInit {
         });
 
         const vectorLayer = new Vector({
-            source: vectorSource
+            source: vectorSource,
         });
 
-        const rasterLayer = new Tile({
-            source: new TileJSON({
-                url: 'https://api.tiles.mapbox.com/v3/mapbox.geography-class.json?secure',
-                crossOrigin: ''
-            })
-        });
-
+        /*         const rasterLayer = new Tile({
+                    source: new TileJSON({
+                        url: 'https://api.tiles.mapbox.com/v3/mapbox.geography-class.json?secure',
+                        crossOrigin: ''
+                    })
+                });
+         */
         // Belarus
         // vector layer
         const belarusSource = new VectorSource({
             format: new GeoJSON(),
-            url: './assets/data/geo.json'
+            url: './assets/data/belarus.geo.json'
         });
         const strokeVector = new Vector({
             source: belarusSource,
@@ -165,15 +167,30 @@ export class MapComponent implements OnInit {
             view: this.view
         });
 
-        navigator.geolocation.getCurrentPosition(pos => {
-            const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
-            this.map.getView().animate({ center: coords, zoom: 10 });
-        });
+        // this.navigate();
         // this.features.map(f => this.addAnimation(f));
         this.features.map(feature => vectorSource.addFeature(feature));
-
         this.map.updateSize();
 
+        // Popoup overlay onDrag
+        const dragPopup = new Popup({
+            element: document.getElementById('ol-popup'),
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            }
+        });
+        this.map.addOverlay(dragPopup);
+        this.map.on('pointermove', (evt) => {
+            const pixel = this.map.getEventPixel(evt.originalEvent);
+            const hit = this.map.hasFeatureAtPixel(pixel);
+            this.map.getViewport().style.cursor = hit ? 'pointer' : '';
+            if (hit) {
+                //this.displayFeatureInfo(pixel, dragPopup, evt.coordinate);
+            }
+        });
+
+        // Popoup overlay onClick
         const popup = new Popup({
             element: document.getElementById('popup'),
             autoPan: true,
@@ -189,6 +206,23 @@ export class MapComponent implements OnInit {
             }
             this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate);
         });
+
+        const select = new Select({
+            condition: pointerMove
+        });
+
+
+        if (select !== null) {
+            this.map.addInteraction(select);
+            select.on('select', (e) => {
+                if (e.selected.length > 0) {
+                    const pixel = e.mapBrowserEvent.pixel;
+                    this.popupFeatureInfo(e.selected, dragPopup, e.mapBrowserEvent.coordinate);
+                }
+
+            });
+        }
+
     }
 
     transform(extent) {
@@ -230,30 +264,40 @@ export class MapComponent implements OnInit {
         }
     }
 
+    popupFeatureInfo(features, popup, coord) {
+
+        if (features.length === 1) {
+            popup.hide();
+            // const data = this.service.getFeatureValue(features);
+            const html = '<div class="popup header"> Popup! </div>';
+            popup.show(coord, html);
+        } else {
+            popup.hide();
+        }
+    }
+
+    // --- Style for feature
     getStyle(feature) {
+        const r2 = 14;
         const size = feature.get('features').length;
+        const radius = Math.max(r2, Math.min(size * 0.75, 20));
         let style = this.styleCache[size];
         if (!style) {
-            const color = size > 25 ? '192,0,0' : size > 8 ? '255,128,0' : '0,128,0';
-            const radius = Math.max(8, Math.min(size * 0.75, 20));
+            const color = size > 2 ? '51,153,255' : '103,208,0'; // size > 28 ? '192,0,0' : size > r2 ? '255,128,0' : '0,128,0';
+
             const d = 2 * Math.PI * radius / 6;
             const dash = [0, d, d, d, d, d, d];
             style = this.styleCache[size] = new Style(
                 {
-                    fillColor: '#ffff00',
-                    strokeColor: '#3399ff',
-                    pointRadius: 8,
-                    strokeWidth: 5,
-                    strokeOpacity: 0.5,
                     image: new Circle(
                         {
                             radius: radius,
                             stroke: new Stroke(
                                 {
-                                    color: 'rgba(' + color + ',0.5)',
-                                    width: 15,
-                                    lineDash: dash,
-                                    lineCap: 'butt'
+                                    color: 'rgba(' + color + ',0.4)',
+                                    width: 10,
+                                    // lineDash: dash,
+                                    // lineCap: 'butt'
                                 }),
                             fill: new Fill(
                                 {
@@ -267,10 +311,18 @@ export class MapComponent implements OnInit {
                                 {
                                     color: '#fff'
                                 })
-                        })
+                        }),
+                    zIndex: 1
                 });
         }
-        return [style];
+        const shadow = new Style({
+            stroke: new Stroke({
+                color: 'rgba(0,0,0,1)',
+                width: radius + 20
+            }),
+            zIndex: 2
+        });
+        return [style, shadow];
     }
 
     // animation
@@ -301,89 +353,10 @@ export class MapComponent implements OnInit {
         this.map.addOverlay(overlay);
     }
 
-    // https://github.com/openlayers/openlayers/blob/master/examples/feature-animation.js
-
-/*     flash(feature) {
-        const duration = 3000;
-        const start = new Date().getTime();
-        const listenerKey = tileLayer.on('postrender', animate);
-
-        function animate(event) {
-            const vectorContext = getVectorContext(event);
-            const frameState = event.frameState;
-            const flashGeom = feature.getGeometry().clone();
-            const elapsed = frameState.time - start;
-            const elapsedRatio = elapsed / duration;
-            // radius will be 5 at start and 30 at end.
-            const radius = easeOut(elapsedRatio) * 25 + 5;
-            const opacity = easeOut(1 - elapsedRatio);
-
-            const style = new Style({
-                image: new CircleStyle({
-                    radius: radius,
-                    stroke: new Stroke({
-                        color: 'rgba(255, 0, 0, ' + opacity + ')',
-                        width: 0.25 + opacity
-                    })
-                })
-            });
-
-            vectorContext.setStyle(style);
-            vectorContext.drawGeometry(flashGeom);
-            if (elapsed > duration) {
-                unByKey(listenerKey);
-                return;
-            }
-            // tell OpenLayers to continue postrender animation
-            map.render();
-        }
-    }
-
-    source.on('addfeature', function(e) {
-        flash(e.feature);
-    }); */
-
-    /* animateLayer(layer) {
-        let animationTween = new Tween();
-        const begin = {
-            x: 5
-        };
-        const end = {
-            x: 20
-        };
-        const callbacks = {
-            eachStep: Function.bind(animate, layer),
-            done: () => {
-                animationTween = new OpenLayers.Tween(easeInOut);
-                begin.x = (begin.x === 20 ? 5 : 20);
-                end.x = (end.x === 20 ? 5 : 20);
-                animationTween.start(begin, end, 80, {
-                    callbacks: callbacks
-                });
-            }
-        };
-        animationTween.start(begin, end, 80, {
-            callbacks: callbacks
+    navigate() {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const coords = fromLonLat([pos.coords.longitude, pos.coords.latitude]);
+            this.map.getView().animate({ center: coords, zoom: 10 });
         });
-    
-        function animate(delta) {
-            console.log(delta.x);
-            for (let i = 0; i < this.features.length; i++) {
-                this.features[i].style.strokeWidth = delta.x;
-                this.features[i].style.pointRadius = delta.x;
-            }
-            this.redraw();
-        }
-    } */
-
-    addFilter() {
-        /*         const coords = this.service.getContryCoordinates();
-          const f = new Feature(new Polygon(coords));
-          const crop = new Crop({ feature: f, inner: false });
-          // this.layer.addFilter(crop);
-          const mask = new Mask({ feature: f, inner: false, fill: new Fill({ color: [255, 255, 255, 0.8] }) });
-          this.layer.addFilter(mask);
-          mask.set('active', false); */
     }
-
 }
