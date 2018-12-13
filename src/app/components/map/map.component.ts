@@ -43,6 +43,7 @@ import Mask from 'ol-ext/filter/Mask';
 import { Control } from 'ol/control';
 import Select from 'ol/interaction/Select';
 import { click, pointerMove, altKeyOnly } from 'ol/events/condition.js';
+import { getPopupInfoTemplate } from '../../map-builder/popup-info';
 
 @Component({
     selector: 'app-map',
@@ -173,22 +174,26 @@ export class MapComponent implements OnInit {
         this.map.updateSize();
 
         // Popoup overlay onDrag
-        const dragPopup = new Popup({
-            element: document.getElementById('ol-popup'),
-            autoPan: true,
-            autoPanAnimation: {
-                duration: 250
-            }
-        });
-        this.map.addOverlay(dragPopup);
-        this.map.on('pointermove', (evt) => {
-            const pixel = this.map.getEventPixel(evt.originalEvent);
-            const hit = this.map.hasFeatureAtPixel(pixel);
-            this.map.getViewport().style.cursor = hit ? 'pointer' : '';
-            if (hit) {
-                //this.displayFeatureInfo(pixel, dragPopup, evt.coordinate);
-            }
-        });
+        /**
+       * Elements that make up the popup.
+       */
+        const container = document.getElementById('anchor-popup');
+        const content = document.getElementById('popup-content');
+        const closer = document.getElementById('popup-closer');
+
+        // const dragPopup = new Overlay({
+        //     element: container,
+        //     autoPan: true,
+        //     autoPanAnimation: {
+        //         duration: 250
+        //     }
+        // });
+        // this.map.addOverlay(dragPopup);
+        // closer.onclick = function () {
+        //     dragPopup.setPosition(undefined);
+        //     closer.blur();
+        //     return false;
+        // };
 
         // Popoup overlay onClick
         const popup = new Popup({
@@ -204,10 +209,16 @@ export class MapComponent implements OnInit {
                 popup.hide();
                 return;
             }
+            // dragPopup.setPosition(undefined);
             this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate);
         });
+        this.map.on('pointermove', (e) => {
+            const pixel = this.map.getEventPixel(e.originalEvent);
+            const hit = this.map.hasFeatureAtPixel(pixel);
+            this.map.getViewport().style.cursor = hit ? 'pointer' : '';
+        });
 
-        const select = new Select({
+        /* const select = new Select({
             condition: pointerMove
         });
 
@@ -216,12 +227,23 @@ export class MapComponent implements OnInit {
             this.map.addInteraction(select);
             select.on('select', (e) => {
                 if (e.selected.length > 0) {
-                    const pixel = e.mapBrowserEvent.pixel;
-                    this.popupFeatureInfo(e.selected, dragPopup, e.mapBrowserEvent.coordinate);
+
+                    const f = e.selected[0].get('features')[0];
+                    if (f.get('name') !== 'Belarus') {
+                        // this.map.getViewport().style.cursor = 'pointer';
+                        // const hdms = toStringHDMS(toLonLat(e.mapBrowserEvent.coordinate));
+                        // content.innerHTML = '<p>You clicked here:</p><code>' + hdms +
+                        //    '</code>';
+                        // dragPopup.setPosition(e.mapBrowserEvent.coordinate);
+                        // this.popupFeatureInfo(e.selected, dragPopup, e.mapBrowserEvent.coordinate);
+                    }
+                } else {
+                    // dragPopup.setPosition(undefined);
+                    // this.map.getViewport().style.cursor = '';
                 }
 
             });
-        }
+        } */
 
     }
 
@@ -253,8 +275,10 @@ export class MapComponent implements OnInit {
         this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
             features.push(feature);
         });
-
-        if (features.length === 1) {
+        if (features.length > 1) {
+            this.map.getView().setZoom(this.map.getView().getZoom() + 1);
+            this.map.panTo(coord);
+        } else if (features.length === 1) {
             popup.hide();
             const data = this.service.getFeatureValue(features);
             const html = getPopupWindow(data, this.service.getPopupOptions());
@@ -268,8 +292,8 @@ export class MapComponent implements OnInit {
 
         if (features.length === 1) {
             popup.hide();
-            // const data = this.service.getFeatureValue(features);
-            const html = '<div class="popup header"> Popup! </div>';
+            const data = this.service.getFeatureValue(features);
+            const html = getPopupInfoTemplate(data);
             popup.show(coord, html);
         } else {
             popup.hide();
