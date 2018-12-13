@@ -275,9 +275,12 @@ export class MapComponent implements OnInit {
         this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
             features.push(feature);
         });
-        if (features.length > 1) {
-            this.map.getView().setZoom(this.map.getView().getZoom() + 1);
-            this.map.panTo(coord);
+        if (features.length > 1
+            || (features.length === 1 && features[0].get('features').length > 1)) {
+            this.map.setView(new View({
+                center: coord,
+                zoom: this.map.getView().getZoom() + 3
+            }));
         } else if (features.length === 1) {
             popup.hide();
             const data = this.service.getFeatureValue(features);
