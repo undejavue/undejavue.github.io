@@ -35,7 +35,7 @@ import { toLonLat } from 'ol/proj.js';
 import Popup from 'ol-popup';
 import { IPollutionModel } from '../models/pollution.interface';
 import { IFeatureValue } from '../models/feature-value.interface';
-import { getPopupWindow } from '../../map-builder/overlay';
+import { getPopupWindow } from '../../overlays/overlay';
 import { ConfigService } from '../../services/config.service';
 import { IMapOptions } from '../models/map-options.interface';
 import Crop from 'ol-ext/filter/Crop';
@@ -43,7 +43,6 @@ import Mask from 'ol-ext/filter/Mask';
 import { Control } from 'ol/control';
 import Select from 'ol/interaction/Select';
 import { click, pointerMove, altKeyOnly } from 'ol/events/condition.js';
-import { getPopupInfoTemplate } from '../../map-builder/popup-info';
 
 @Component({
     selector: 'app-map',
@@ -53,58 +52,152 @@ import { getPopupInfoTemplate } from '../../map-builder/popup-info';
 export class MapComponent implements OnInit {
     map: Map;
     source: XYZ;
-    layer: Tile;
-    view: View;
     mapCenter: IGeoPoint;
     markers: IMarker[];
     features: Feature[];
-    markerSettings: IMarkerSettings;
+    featureSize = {
+        hover: 18,
+        default: 14
+    };
+
     styleCache = {};
     distance = 90;
-    clusterSource: any;
-    clusters: any;
-    belarusBounds = [23.13474, 51.23751, 32.80613, 56.20996];
     mapOptions: IMapOptions;
+
+    withCountryBorder: boolean;
+    countryName: string;
+    countryGeoJson: string;
 
     constructor(private service: PollutionService, private configService: ConfigService) {
         this.mapOptions = this.configService.get('mapOptions') as IMapOptions;
         this.mapCenter = this.mapOptions.center;
-        this.markerSettings = {
-            defaultIcon: 'assets/images/info.png',
-            size: [42, 42]
-        };
+        this.countryName = this.mapOptions.country.name;
+        this.withCountryBorder = this.mapOptions.country.withBorder;
+        this.countryGeoJson = './assets/data/' + this.mapOptions.country.geoJson;
     }
 
     ngOnInit() {
+        const layer = this.createMap(this.withCountryBorder);
+        this.addFeatures(layer);
+        this.addOverlays();
+        this.addIteractions();
+        // this.navigate();
+    }
 
-        this.markers = this.service.getPoints();
-        this.features = this.markers.map(m => this.getFeature(m));
-
+    createMap(withBorder: boolean) {
         const vectorSource = new VectorSource({
             features: []
         });
 
-        const vectorLayer = new Vector({
-            source: vectorSource,
+        // Create map
+        const baseLayer = new Tile({
+            source: new SourceOSM()
         });
 
-        /*         const rasterLayer = new Tile({
-                    source: new TileJSON({
-                        url: 'https://api.tiles.mapbox.com/v3/mapbox.geography-class.json?secure',
-                        crossOrigin: ''
-                    })
-                });
-         */
-        // Belarus
-        // vector layer
+        const view = new View({
+            extent: this.transform(this.mapOptions.bounds),
+            center: fromLonLat([this.mapCenter.longtitude, this.mapCenter.latitude]),
+            zoom: this.mapOptions.zoom,
+            minZoom: 7
+        });
+
+        const clusterSource = new Cluster({
+            distance: this.distance,
+            source: vectorSource
+        });
+
+        const clusters = new AnimatedCluster(
+            {
+                name: 'Cluster',
+                source: clusterSource,
+                animationDuration: 700, // $('#animatecluster').prop('checked') ? 700 : 0,
+                style: (feature) => this.getStyle(feature)
+            });
+
+        const layers = [baseLayer, clusters];
+
+        if (withBorder) {
+            layers.push(this.getCountryBorderVector());
+        }
+        this.map = new Map({
+            controls: defaultControls().extend([
+                new ZoomToExtent({
+                    extent: this.transform(this.mapOptions.bounds)
+                })
+            ]),
+            target: 'map',
+            layers,
+            view
+        });
+
+        return vectorSource;
+    }
+
+    addFeatures(vectorSource) {
+        this.markers = this.service.getPoints();
+        this.features = this.markers.map(m => this.getFeature(m));
+        this.features.map(feature => vectorSource.addFeature(feature));
+        this.map.updateSize();
+    }
+
+    addOverlays() {
+
+        // Popoup overlay onClick
+        const popup = new Popup({
+            element: document.getElementById('popup'),
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            }
+        });
+
+        this.map.addOverlay(popup);
+        this.map.on('click', (evt) => {
+            if (evt.dragging) {
+                popup.hide();
+                return;
+            }
+            this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate);
+        });
+
+        this.map.on('pointermove', (e) => {
+            if (e.dragging) {
+                return;
+            }
+            const pixel = this.map.getEventPixel(e.originalEvent);
+            const hit = this.map.hasFeatureAtPixel(pixel);
+            this.map.getViewport().style.cursor = hit ? 'pointer' : '';
+        });
+    }
+
+    addIteractions() {
+        const select = new Select({
+            condition: pointerMove,
+            style: (feature) => this.getStyle(feature, true)
+        });
+
+        if (select !== null) {
+            this.map.addInteraction(select);
+            select.on('select', (e) => {
+                if (e.selected.length > 0) {
+                    if (e.selected[0].get('name') !== this.countryName) {
+                        return;
+                    }
+                }
+            });
+        }
+    }
+
+    getCountryBorderVector() {
+        // Belarus border
         const belarusSource = new VectorSource({
             format: new GeoJSON(),
-            url: './assets/data/belarus.geo.json'
+            url: this.countryGeoJson
         });
         const strokeVector = new Vector({
             source: belarusSource,
             style: (feature, res) => {
-                if (feature.get('name') === 'Belarus') {
+                if (feature.get('name') === this.countryName) {
                     return new Style({
                         stroke: new Stroke({
                             color: 'gray',
@@ -119,137 +212,9 @@ export class MapComponent implements OnInit {
             }
         });
 
-        // Create map
-        this.source = new SourceOSM({
-        });
-
-        this.layer = new Tile({
-            source: this.source
-        });
-
-        this.view = new View({
-            extent: this.transform(this.mapOptions.bounds),
-            center: fromLonLat([this.mapCenter.longtitude, this.mapCenter.latitude]),
-            zoom: this.mapOptions.zoom,
-            minZoom: 7
-        });
-
-        const source = new VectorSource({
-            features: this.features
-        });
-
-        this.clusterSource = new Cluster({
-            distance: this.distance,
-            source: source
-        });
-
-        /*         this.clusters = new Vector({
-                    source: this.clusterSource,
-                    style: (feature) => this.getStyle(feature)
-                }); */
-
-        this.clusters = new AnimatedCluster(
-            {
-                name: 'Cluster',
-                source: this.clusterSource,
-                animationDuration: 700, // $('#animatecluster').prop('checked') ? 700 : 0,
-                // Cluster style
-                style: (feature) => this.getStyle(feature)
-            });
-
-        this.map = new Map({
-            controls: defaultControls().extend([
-                new ZoomToExtent({
-                    extent: this.transform(this.mapOptions.bounds)
-                })
-            ]),
-            target: 'map',
-            layers: [this.layer, vectorLayer, strokeVector, this.clusters],
-            view: this.view
-        });
-
-        // this.navigate();
-        // this.features.map(f => this.addAnimation(f));
-        this.features.map(feature => vectorSource.addFeature(feature));
-        this.map.updateSize();
-
-        // Popoup overlay onDrag
-        /**
-       * Elements that make up the popup.
-       */
-        const container = document.getElementById('anchor-popup');
-        const content = document.getElementById('popup-content');
-        const closer = document.getElementById('popup-closer');
-
-        // const dragPopup = new Overlay({
-        //     element: container,
-        //     autoPan: true,
-        //     autoPanAnimation: {
-        //         duration: 250
-        //     }
-        // });
-        // this.map.addOverlay(dragPopup);
-        // closer.onclick = function () {
-        //     dragPopup.setPosition(undefined);
-        //     closer.blur();
-        //     return false;
-        // };
-
-        // Popoup overlay onClick
-        const popup = new Popup({
-            element: document.getElementById('popup'),
-            autoPan: true,
-            autoPanAnimation: {
-                duration: 250
-            }
-        });
-        this.map.addOverlay(popup);
-        this.map.on('click', (evt) => {
-            if (evt.dragging) {
-                popup.hide();
-                return;
-            }
-            // dragPopup.setPosition(undefined);
-            this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate);
-        });
-        this.map.on('pointermove', (e) => {
-            const pixel = this.map.getEventPixel(e.originalEvent);
-            const hit = this.map.hasFeatureAtPixel(pixel);
-            this.map.getViewport().style.cursor = hit ? 'pointer' : '';
-        });
-
-        /* const select = new Select({
-            condition: pointerMove
-        });
-
-
-        if (select !== null) {
-            this.map.addInteraction(select);
-            select.on('select', (e) => {
-                if (e.selected.length > 0) {
-
-                    const f = e.selected[0].get('features')[0];
-                    if (f.get('name') !== 'Belarus') {
-                        // this.map.getViewport().style.cursor = 'pointer';
-                        // const hdms = toStringHDMS(toLonLat(e.mapBrowserEvent.coordinate));
-                        // content.innerHTML = '<p>You clicked here:</p><code>' + hdms +
-                        //    '</code>';
-                        // dragPopup.setPosition(e.mapBrowserEvent.coordinate);
-                        // this.popupFeatureInfo(e.selected, dragPopup, e.mapBrowserEvent.coordinate);
-                    }
-                } else {
-                    // dragPopup.setPosition(undefined);
-                    // this.map.getViewport().style.cursor = '';
-                }
-
-            });
-        } */
-
+        return strokeVector;
     }
 
-    transform(extent) {
-        return transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
-    }
 
     getFeature(marker: IMarker): Feature {
         const feature = new Feature({
@@ -257,22 +222,14 @@ export class MapComponent implements OnInit {
             geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
             name: marker.title,
             address: marker.address,
-            size: this.markerSettings.size
         });
-        /*         feature.setStyle(new Style({
-                    image: new Icon(({
-                        color: '#8959A8',
-                        crossOrigin: 'anonymous',
-                        src: this.markerSettings.defaultIcon,
-                        size: this.markerSettings.size
-                    }))
-                })); */
         return feature;
     }
 
     displayFeatureInfo(pixel, popup, coord) {
         const features = [];
         this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+            feature.set('state', 'selected');
             features.push(feature);
         });
         if (features.length > 1
@@ -291,26 +248,15 @@ export class MapComponent implements OnInit {
         }
     }
 
-    popupFeatureInfo(features, popup, coord) {
-
-        if (features.length === 1) {
-            popup.hide();
-            const data = this.service.getFeatureValue(features);
-            const html = getPopupInfoTemplate(data);
-            popup.show(coord, html);
-        } else {
-            popup.hide();
-        }
-    }
-
     // --- Style for feature
-    getStyle(feature) {
-        const r2 = 14;
+    getStyle(feature: any, isHover = false) {
+        if (!feature.get('features')) { return; }
+        const r = isHover ? this.featureSize.hover : this.featureSize.default;
         const size = feature.get('features').length;
-        const radius = Math.max(r2, Math.min(size * 0.75, 20));
-        let style = this.styleCache[size];
+        const radius = Math.max(r, Math.min(size * 0.75, 20));
+        let style = this.styleCache[r];
         if (!style) {
-            const color = size > 2 ? '51,153,255' : '103,208,0'; // size > 28 ? '192,0,0' : size > r2 ? '255,128,0' : '0,128,0';
+            const color = size > 2 ? '51,153,255' : '103,208,0';
 
             const d = 2 * Math.PI * radius / 6;
             const dash = [0, d, d, d, d, d, d];
@@ -342,42 +288,18 @@ export class MapComponent implements OnInit {
                     zIndex: 1
                 });
         }
-        const shadow = new Style({
+        /* const shadow = new Style({
             stroke: new Stroke({
                 color: 'rgba(0,0,0,1)',
                 width: radius + 20
             }),
             zIndex: 2
-        });
-        return [style, shadow];
+        }); */
+        return [style];
     }
 
-    // animation
-    /*   pointToProj(coordinates) {
-          const lon = parseFloat(coordinates[0]);
-          const lat = parseFloat(coordinates[1]);
-          return transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
-      } */
-
-    pulsatingCircleAnimation(coor) {
-        const element = document.createElement('div');
-        element.setAttribute('class', 'gps_ring');
-        // const coorProjection = this.pointToProj(coor);
-        return new Overlay({
-            element: element,
-            position: coor,
-            positioning: 'center-center',
-            offset: [0, 0]
-        });
-    }
-
-    addAnimation(feature) {
-
-        let coordinates;
-        let overlay;
-        coordinates = (<Point>feature.getGeometry()).getCoordinates();
-        overlay = this.pulsatingCircleAnimation(coordinates);
-        this.map.addOverlay(overlay);
+    transform(extent) {
+        return transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
     }
 
     navigate() {

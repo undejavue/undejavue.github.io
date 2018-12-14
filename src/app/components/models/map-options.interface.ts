@@ -4,5 +4,9 @@ export interface IMapOptions {
     center: IGeoPoint;
     bounds: number[];
     zoom: number;
-    country?: any;
+    country: {
+        withBorder: boolean,
+        name: string,
+        geoJson: string
+    };
 }

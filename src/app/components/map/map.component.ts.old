@@ -301,4 +301,24 @@ export class MapComponent implements OnInit {
       $('.infos').html('');
     }) */
   }
+  pulsatingCircleAnimation(coor) {
+        const element = document.createElement('div');
+        element.setAttribute('class', 'gps_ring');
+        // const coorProjection = this.pointToProj(coor);
+        return new Overlay({
+            element: element,
+            position: coor,
+            positioning: 'center-center',
+            offset: [0, 0]
+        });
+    }
+
+    addAnimation(feature) {
+
+        let coordinates;
+        let overlay;
+        coordinates = (<Point>feature.getGeometry()).getCoordinates();
+        overlay = this.pulsatingCircleAnimation(coordinates);
+        this.map.addOverlay(overlay);
+    }
 }

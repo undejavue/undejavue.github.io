@@ -10,6 +10,11 @@
             "longtitude": 27.567444
         },
         "bounds": [ 23.13474, 51.23751, 32.80613, 56.20996 ],
-        "zoom": 8
+        "zoom": 8,
+        "country": {
+            "withBorder": true,
+            "name": "Belarus",
+            "geoJson": "belarus.geo.json"
+        }
     }
 }
