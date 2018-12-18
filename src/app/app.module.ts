@@ -1,33 +1,47 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ConfigService } from './services/config.service';
 import { MainLayoutComponent } from './components/main-layout/main-layout.component';
 import { MapComponent } from './components/map/map.component';
 import { PollutionService } from './services/pollution.service';
-import { DistanceComponent } from './components/distance/distance.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
+import { ReportsComponent } from './components/reports/reports.component';
+import { Routes, RouterModule } from '@angular/router';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
 }
+
+
+const appRoutes: Routes = [
+  { path: 'map', component: MainLayoutComponent },
+  { path: 'reports', component: ReportsComponent },
+  { path: '',   redirectTo: '/map', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+
 
 @NgModule({
   declarations: [
     AppComponent,
     MainLayoutComponent,
     MapComponent,
-    DistanceComponent
+    ReportsComponent,
+    PageNotFoundComponent
   ],
   imports: [
     HttpModule,
     HttpClientModule,
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule,
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: false }
+    )
   ],
   providers: [
     { provide: ConfigService, useFactory: configServiceFactory },
