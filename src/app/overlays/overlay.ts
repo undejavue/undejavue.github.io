@@ -50,7 +50,7 @@ ${getDateString(data.datetime)}
 
 <div id="objreports" class="tabcontent" style="background: white;">
 <div class="flex-row">
-    <a href="/reports/${data.id}">Отчеты по объекту</a>
+    <a href="reports/${data.id}">Отчеты по объекту</a>
 </div>
 </div></div></div>`;
 
