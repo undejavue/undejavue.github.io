@@ -1,1 +1,6 @@
-<router-outlet></router-outlet>
+<div *ngIf="isReady else spinner">
+    <router-outlet></router-outlet>
+</div>
+<ng-template #spinner>
+    <div class="loading">Loading&#8230;</div>
+</ng-template>

@@ -222,6 +222,13 @@ export class PollutionService {
         return;
     }
 
+    getReportInfo(id: string): IDataModelItem {
+        if (id && this.dataModel) {
+            const result = this.dataModel.find(m => m.id === id);
+            return result;
+        }
+    }
+
     calcAggregatedValue(features: any[]) {
         /* let acc = 0;
         features.forEach(f => {

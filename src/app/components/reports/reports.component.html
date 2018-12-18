@@ -1,3 +1,11 @@
-<p>
-  reports works!
-</p>
+<div *ngIf="reportInfo" class="on-center">
+  <div class="flex-column justify-content-center">
+    <div class="title p-2 text-center">
+      {{reportInfo.title}}
+    </div>
+    <div class="p-2 text-center">
+      {{'Отчеты по выбранному объекту и данные в реальном времени'}}
+    </div>
+    <a class="text-center" routerLink="/map">Назад</a>
+  </div>
+</div>

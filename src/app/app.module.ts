@@ -19,7 +19,7 @@ export function configServiceFactory() {
 
 const appRoutes: Routes = [
   { path: 'map', component: MainLayoutComponent },
-  { path: 'reports', component: ReportsComponent },
+  { path: 'reports/:id', component: ReportsComponent },
   { path: '',   redirectTo: '/map', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }
 ];

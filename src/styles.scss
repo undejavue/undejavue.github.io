@@ -1,119 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
-
 body {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-}
-
-$w: 24px;
-$h: 24px;
-$r: 30px;
-.pulsate {
-    border: 10px solid red;
-    background: tranparent;
-    -webkit-border-radius: $r;
-    -moz-border-radius: $r;
-    border-radius: $r;
-    height: $h;
-    width: $w;
-    -webkit-animation: pulse 1s ease-out;
-    -moz-animation: pulse 1s ease-out;
-    animation: pulse 1s ease-out;
-    -webkit-animation-iteration-count: infinite;
-    -moz-animation-iteration-count: infinite;
-    animation-iteration-count: infinite;
-    position: absolute;
-    top: calc($h-h/2);
-    left: calc($w-w/2);
-    z-index: 1;
-    opacity: 0;
-}
-
-@keyframes pulse {
-    0% {
-        -moz-transform: scale(0);
-        opacity: 0.0;
-    }
-    25% {
-        -moz-transform: scale(0);
-        opacity: 0.1;
-    }
-    50% {
-        -moz-transform: scale(0.1);
-        opacity: 0.3;
-    }
-    75% {
-        -moz-transform: scale(0.5);
-        opacity: 0.5;
-    }
-    100% {
-        -moz-transform: scale(1);
-        opacity: 0.0;
-    }
-}
-
-@-webkit-keyframes pulse {
-    0% {
-        -webkit-transform: scale(0);
-        opacity: 0.0;
-    }
-    25% {
-        -webkit-transform: scale(0);
-        opacity: 0.1;
-    }
-    50% {
-        -webkit-transform: scale(0.1);
-        opacity: 0.3;
-    }
-    75% {
-        -webkit-transform: scale(0.5);
-        opacity: 0.5;
-    }
-    100% {
-        -webkit-transform: scale(1);
-        opacity: 0.0;
-    }
-}
-
-@keyframes pulse {
-    from {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(0.85);
-    }
-    to {
-        transform: scale(1);
-    }
-}
-
-.fe-pulse {
-    animation-name: pulse;
-    animation-duration: 3s;
-    animation-iteration-count: infinite;
-}
-
-.gps_ring {
-    border: 3px solid #999;
-    border-radius: 30px;
-    height: 18px;
-    width: 18px;
-    animation: pulsate 1s ease-out;
-    animation-iteration-count: infinite;
-    opacity: 0.0
-}
-
-@keyframes pulsate {
-    0% {
-        transform: scale(0.1, 0.1);
-        opacity: 0.0;
-    }
-    50% {
-        opacity: 1.0;
-    }
-    100% {
-        transform: scale(1.2, 1.2);
-        opacity: 0.0;
-    }
 }
 
 .ol-popup {
@@ -124,7 +10,7 @@ $r: 30px;
     border-radius: 4px; // padding: 1rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     opacity: 0.85;
-    max-width: 400px;
+    max-width: 393px;
 }
 
 .ol-popup-closer {
@@ -242,6 +128,13 @@ $r: 30px;
         @extend .datetime;
         font-weight: 600;
     }
+
+}
+
+a {
+    font-size: 0.8rem !important;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .flex-row {
@@ -259,6 +152,10 @@ $r: 30px;
 
 .justify-content-start {
   justify-content: flex-start;
+}
+
+.justify-content-center {
+    justify-content: center;
 }
 
 .p-1 {
@@ -291,6 +188,11 @@ $r: 30px;
 
 .align-self-center {
     align-items: center;
+}
+
+.text-center {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 // tab selector

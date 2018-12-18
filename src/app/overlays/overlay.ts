@@ -27,6 +27,7 @@ const getTemplate = (data: IDataModelItem,
 <button class="tablinks" onclick="openTab(event, 'objemissions')">Выбросы</button>
 <button class="tablinks" onclick="openTab(event, 'objconcentrations')">Концентрация</button>
 <button class="tablinks" onclick="openTab(event, 'objinformation')">Информация</button>
+<button class="tablinks" onclick="openTab(event, 'objreports')">Отчеты</button>
 </div>
 
 <div id="objemissions" class="tabcontent">
@@ -44,7 +45,13 @@ ${getDateString(data.datetime)}
 
 
 <div id="objinformation" class="tabcontent">
-<div class="info-block">${info}</div>
+    <div class="info-block">${info}</div>
+</div></div></div>
+
+<div id="objreports" class="tabcontent" style="background: white;">
+<div class="flex-row">
+    <a href="/reports/${data.id}">Отчеты по объекту</a>
+</div>
 </div></div></div>`;
 
 const getTabled = (arr: IPollutionModel[]) => {
