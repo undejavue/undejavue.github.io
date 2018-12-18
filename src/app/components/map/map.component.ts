@@ -120,11 +120,12 @@ export class MapComponent implements OnInit {
             layers.push(this.getCountryBorderVector());
         }
         this.map = new Map({
-            controls: defaultControls().extend([
+            /* controls: defaultControls().extend([
                 new ZoomToExtent({
                     extent: this.transform(this.mapOptions.bounds)
                 })
-            ]),
+            ]), */
+            controls: [],
             target: 'map',
             layers,
             view
