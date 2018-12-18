@@ -11,7 +11,17 @@ const getTemplate = (data: IDataModelItem,
     dimConc: string,
     info: string) => `
 <div class="popup-content">
-<div class="header"><div class="title p-1">${data.title}</div><div class="address p-1">${data.address}</div></div>
+<div class="header">
+    <div class="flex-row justify-content-start align-self-center">
+        <div class="info-image">
+            <img src="${data.information.imgUrl}" alt="" class="profile-pic">
+        </div>
+        <div class="p-2">
+            <div class="title p-1">${data.title}</div>
+            <div class="address p-1">${data.address}</div>
+        </div>
+    </div>
+</div>
 <div class="content">
 <div class="tab">
 <button class="tablinks" onclick="openTab(event, 'objemissions')">Выбросы</button>

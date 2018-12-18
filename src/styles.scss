@@ -406,3 +406,11 @@ tr:nth-child(even) {
     width: 100%;
     height: auto;
 }
+
+.info-image {
+    width: 8rem;
+    // height: 4rem;
+    position: relative;
+    border-radius: 5%;
+    // border: 1px solid lightgray;
+}
