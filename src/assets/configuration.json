@@ -8,7 +8,9 @@
     },
     "apiKey": "AIzaSyBV5qei-V2AZuT6we5iNgO22aG2h8zWj-E",
     "enableDebug": true,
-    "webApiUrl": "http://",
+    "webApiUrls": {
+        "molodechno": "http://37.17.109.72/ask"
+    },
     "mapOptions": {
         "center": {
             "latitude": 53.893009,

@@ -7,6 +7,7 @@ import { BehaviorSubject, forkJoin } from 'rxjs';
 import { PollutionType } from '../components/models/pollution.enum';
 import { IDataModelItem } from '../components/models/data-model-item.interface';
 import { ConfigService } from './config.service';
+import { WebApiService } from './webapi.service';
 
 export interface IInitialized {
     paramsReady: boolean;
@@ -41,7 +42,7 @@ export class PollutionService {
     markers: IMarker[];
     country: any;
 
-    constructor(private httpClient: HttpClient, private config: ConfigService) {
+    constructor(private httpClient: HttpClient, private config: ConfigService, private apiService: WebApiService) {
         this.init();
     }
 
@@ -125,6 +126,7 @@ export class PollutionService {
             } else {
                 this.createDataModel();
                 this.isInitialized.next(true);
+                this.apiService.init();
             }
         });
     }
@@ -152,8 +154,8 @@ export class PollutionService {
                     contentHeader: obj.contentHeader,
                     content: obj.content
                 },
-                emissions: this.getPollution(values.emissions, PollutionType.Emission),
-                concentrations: this.getPollution(values.concentrations, PollutionType.Concentration)
+                emissions: values ? this.getPollution(values.emissions, PollutionType.Emission) : [],
+                concentrations: values ? this.getPollution(values.concentrations, PollutionType.Concentration) : []
             };
             result.push(item);
         });
@@ -216,6 +218,13 @@ export class PollutionService {
 
         if (id && this.dataModel) {
             const result = this.dataModel.find(m => m.id === id);
+
+            if (this.apiService.webApis[id]) {
+                this.apiService.getCurrentValues(id)
+                .pipe()
+                .subscribe(values => console.log('real values: ', values));
+            }
+
             return result;
         }
 

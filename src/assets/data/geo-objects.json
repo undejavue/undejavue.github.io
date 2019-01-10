@@ -33,5 +33,10 @@
         "id": "krichev",
         "latitude": 53.731366,
         "longtitude": 31.725716
+    },
+    {
+        "id": "molodechno",
+        "latitude": 54.299731, 
+        "longtitude": 26.816912
     }
 ]

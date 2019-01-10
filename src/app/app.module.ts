@@ -11,6 +11,8 @@ import { HttpModule } from '@angular/http';
 import { ReportsComponent } from './components/reports/reports.component';
 import { Routes, RouterModule } from '@angular/router';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { WebApiClient } from './api/web-api-client';
+import { WebApiService } from './services/webapi.service';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -45,7 +47,9 @@ const appRoutes: Routes = [
   ],
   providers: [
     { provide: ConfigService, useFactory: configServiceFactory },
-    PollutionService
+    PollutionService,
+    WebApiClient,
+    WebApiService
   ],
   bootstrap: [AppComponent]
 })
