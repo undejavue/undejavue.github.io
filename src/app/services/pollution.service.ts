@@ -37,10 +37,12 @@ export class PollutionService {
     private initProcess: BehaviorSubject<IInitialized> = new BehaviorSubject(this.processReady);
 
     data: IPolutionsData;
-    dataModel: any[];
+    dataModel: IDataModelItem[];
     defaults: any;
     markers: IMarker[];
     country: any;
+
+    realData: any;
 
     constructor(private httpClient: HttpClient, private config: ConfigService, private apiService: WebApiService) {
         this.init();
@@ -127,8 +129,21 @@ export class PollutionService {
                 this.createDataModel();
                 this.isInitialized.next(true);
                 this.apiService.init();
+                this.getRealValues('molodechno');
             }
         });
+    }
+
+    getRealValues(id) {
+        if (this.apiService.webApis[id]) {
+            this.apiService.getCurrentValues(id)
+            .pipe()
+            .subscribe(values => {
+                console.log('real values: ', values);
+
+                this.realData = values;
+            });
+        }
     }
 
     getContryCoordinates() {
@@ -136,7 +151,7 @@ export class PollutionService {
     }
 
     createDataModel() {
-        const result = [];
+        const result = new Array<IDataModelItem>();
         this.data.objects.map(obj => {
             const values = this.data.pollutions.values.find(p => p.id === obj.id);
             const geo = this.data.geo.find(g => g.id === obj.id);
@@ -219,10 +234,25 @@ export class PollutionService {
         if (id && this.dataModel) {
             const result = this.dataModel.find(m => m.id === id);
 
-            if (this.apiService.webApis[id]) {
-                this.apiService.getCurrentValues(id)
-                .pipe()
-                .subscribe(values => console.log('real values: ', values));
+            if (id === 'molodechno' && this.realData) {
+                if (this.realData.Concentration) {
+                   const s = this.realData.Concentration;
+                   result.concentrations.forEach(item => item.value = s[item.name]);
+                }
+                if (this.realData.Emission) {
+                    const e = this.realData.Emission;
+                    result.emissions.forEach(item => {
+                        item.value = e[item.name];
+                        if (item.name === 'flow') {
+                            item.value = this.realData.Gas.Flow;
+                        }
+                    });
+                 }
+                const arr = (this.realData.UpdatedOn as string).split('T');
+                const date = arr[0];
+                const time = arr[1].split('.')[0];
+
+                result.datetime = `${date} ${time}`;
             }
 
             return result;
