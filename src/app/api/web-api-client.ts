@@ -12,8 +12,7 @@ export class WebApiClient {
     private http: HttpClient;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(private config: ConfigService, @Inject(HttpClient) http: HttpClient, ) {
-        this.webApis = config.get('webApis');
+    constructor(@Inject(HttpClient) http: HttpClient, ) {
         this.http = http;
     }
 

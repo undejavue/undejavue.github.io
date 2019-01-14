@@ -19,10 +19,6 @@ export class ConfigService {
     return null;
   }
 
-  getApiConnString(): string {
-    return this.get('webApiUrl');
-  }
-
   getMulti(properties: string[]): any {
     const result = {};
     if (this.loaded && this.config) {
