@@ -7,19 +7,20 @@ import * as actions from './actions';
 import { PollutionService } from '../../services/pollution.service';
 
 @Injectable()
-export class PollutionEffects {
+export class ConfigEffects {
     constructor(private actions$: Actions, private service: PollutionService) { }
 
     @Effect()
-    GetCurrentValue$: Observable<Action> = this.actions$
+    GetDataModel$: Observable<Action> = this.actions$
     .pipe(
-        ofType<actions.GetCurrentValuesAction>(actions.GET_CURRENT_VALUES_ACTION),
-        switchMap(action => this.service.getRealValues(action.objectId)
+        ofType<actions.CreateConfigurationAction>(actions.CREATE_CONFIGURATION_ACTION),
+        switchMap(action => this.service.getDataModel()
             .pipe(
-                switchMap(result => of(new actions.GetCurrentValuesActionSuccess(result))),
-                catchError(error => of(new actions.GetCurrentValuesActionError(error)))
+                switchMap(result => of(new actions.CreateConfigurationActionSuccess(result))),
+                catchError(error => of(new actions.CreateConfigurationActionError(error)))
             )
         ),
-        catchError(error => of(new actions.GetCurrentValuesActionError(error)))
+        catchError(error => of(new actions.CreateConfigurationActionError(error)))
     );
+
 }

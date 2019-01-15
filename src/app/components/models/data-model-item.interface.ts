@@ -5,10 +5,10 @@ export interface IDataModelItem {
     id: string;
     title: string;
     address: string;
-    datetime: string;
+    datetime?: string;
     latitude: number;
     longtitude: number;
     information: IObjectInfo;
-    emissions: IPollutionModel[];
-    concentrations: IPollutionModel[];
+    emissions?: IPollutionModel[];
+    concentrations?: IPollutionModel[];
 }

@@ -11,19 +11,33 @@ import { pollutionReducer } from './store/pollutions/reducer';
 
 import { storeFreeze } from 'ngrx-store-freeze';
 import { createSelector } from 'reselect';
+import { configurationReducer } from './store/configuration/reducer';
+import { reportsReducer } from './store/reports/reducer';
+import { IReportState } from './store/reports/state';
+import { IConfigState } from './store/configuration/state';
 
 export interface AppState {
     pollutions: IPollutionState;
+    reports: IReportState;
+    config: IConfigState;
 }
+
+export interface IDataStore {
+  loading?: boolean;
+  error?: boolean;
+}
+
 
 export type Reducer<T> = (state: T, action: Action) => T;
 
 export const reducers = {
-    pollutions: pollutionReducer
-    // reports: ReportsReducer
+    pollutions: pollutionReducer,
+    reports: reportsReducer,
+    config: configurationReducer
+
 };
 
-const developmentReducer: ActionReducer<any> = compose(storeFreeze, combineReducers)(reducers);
+/* const developmentReducer: ActionReducer<any> = compose(storeFreeze, combineReducers)(reducers);
 const productionReducer: ActionReducer<AppState> = combineReducers(reducers);
 
 export function reducer(state: any, action: any) {
@@ -32,7 +46,7 @@ export function reducer(state: any, action: any) {
   } else {
     return developmentReducer(state, action);
   }
-}
+} */
 
 
    export const getPollutionState = (state: AppState) => state.pollutions.data;

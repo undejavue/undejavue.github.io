@@ -3,7 +3,7 @@ import { IGeoPoint } from '../components/models/geo-point.interface';
 import { IPollutionModel } from '../components/models/pollution.interface';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, forkJoin } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
 import { PollutionType } from '../components/models/pollution.enum';
 import { IDataModelItem } from '../components/models/data-model-item.interface';
 import { ConfigService } from './config.service';
@@ -98,7 +98,7 @@ export class PollutionService {
                 this.processReady = { ...this.processReady, objectsReady: true };
                 this.initProcess.next(this.processReady);
             });
-        this.httpClient
+        /* this.httpClient
             .get('assets/data/pollutions.json', {
                 headers: {
                     'content-type': 'application/json'
@@ -108,7 +108,7 @@ export class PollutionService {
                 this.data.pollutions = res;
                 this.processReady = { ...this.processReady, pollutionsReady: true };
                 this.initProcess.next(this.processReady);
-            });
+            }); */
         this.httpClient
             .get('assets/data/belarus.geo.json', {
                 headers: {
@@ -122,38 +122,42 @@ export class PollutionService {
             });
 
         this.initProcess.pipe().subscribe(p => {
-            const ready = p.objectsReady && p.paramsReady && p.pollutionsReady && p.countryReady && p.geoReady;
+            const ready = p.objectsReady && p.paramsReady /* && p.pollutionsReady  */&& p.countryReady && p.geoReady;
             if (!ready) {
                 this.isInitialized.next(false);
             } else {
-                this.createDataModel();
+                // this.getDataModel();
                 this.isInitialized.next(true);
                 this.apiService.init();
-                this.getRealValues('molodechno');
+                // this.getRealValues('molodechno');
             }
         });
     }
 
     getRealValues(id) {
         if (this.apiService.webApis[id]) {
-            this.apiService.getCurrentValues(id)
-            .pipe()
+            return this.apiService.getCurrentValues(id);
+/*             .pipe()
             .subscribe(values => {
                 console.log('real values: ', values);
 
                 this.realData = values;
-            });
+            }); */
         }
+    }
+
+    getReportData(id) {
+        return of([{key: 'fake', value: 'fake'}]);
     }
 
     getContryCoordinates() {
         return this.country.features[0].geometry.coordinates;
     }
 
-    createDataModel() {
+    getDataModel(): Observable<IDataModelItem[]> {
         const result = new Array<IDataModelItem>();
         this.data.objects.map(obj => {
-            const values = this.data.pollutions.values.find(p => p.id === obj.id);
+            // const values = this.data.pollutions.values.find(p => p.id === obj.id);
             const geo = this.data.geo.find(g => g.id === obj.id);
             const item: IDataModelItem = {
                 id: obj.id,
@@ -161,7 +165,7 @@ export class PollutionService {
                 latitude: geo.latitude,
                 longtitude: geo.longtitude,
                 address: obj.address,
-                datetime: this.data.pollutions.datetime,
+                // datetime: this.data.pollutions.datetime,
                 information: {
                     imgUrl: obj.imgUrl,
                     description: obj.description,
@@ -169,12 +173,13 @@ export class PollutionService {
                     contentHeader: obj.contentHeader,
                     content: obj.content
                 },
-                emissions: values ? this.getPollution(values.emissions, PollutionType.Emission) : [],
-                concentrations: values ? this.getPollution(values.concentrations, PollutionType.Concentration) : []
+                // emissions: values ? this.getPollution(values.emissions, PollutionType.Emission) : [],
+                // concentrations: values ? this.getPollution(values.concentrations, PollutionType.Concentration) : []
             };
             result.push(item);
         });
         this.dataModel = result;
+        return of(result);
     }
 
     getPoints(): IMarker[] {
@@ -211,7 +216,7 @@ export class PollutionService {
         };
     }
 
-    getPollution(source, type: PollutionType) {
+    private getPollution(source, type: PollutionType) {
         const result: IPollutionModel[] = new Array<IPollutionModel>();
         Object.keys(source).forEach(key => {
             const param = this.data.parametres.find(p => p.id === key);

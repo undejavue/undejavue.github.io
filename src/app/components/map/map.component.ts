@@ -1,6 +1,6 @@
 import 'ol/ol.css';
 import 'ol-popup/src/ol-popup.css';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import Map from 'ol/Map';
 import XYZ from 'ol/source/XYZ';
 import View from 'ol/View';
@@ -53,7 +53,7 @@ export class MapComponent implements OnInit {
     map: Map;
     source: XYZ;
     mapCenter: IGeoPoint;
-    markers: IMarker[];
+    @Input() markers: IMarker[];
     features: Feature[];
     featureSize = {
         hover: 18,
@@ -135,10 +135,13 @@ export class MapComponent implements OnInit {
     }
 
     addFeatures(vectorSource) {
-        this.markers = this.service.getPoints();
-        this.features = this.markers.map(m => this.getFeature(m));
-        this.features.map(feature => vectorSource.addFeature(feature));
-        this.map.updateSize();
+        // this.markers = this.service.getPoints();
+        if (this.markers) {
+            this.features = this.markers.map(m => this.getFeature(m));
+            this.features.map(feature => vectorSource.addFeature(feature));
+            this.map.updateSize();
+        }
+
     }
 
     addOverlays() {
