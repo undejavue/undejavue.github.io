@@ -1,16 +1,20 @@
-import { IDataModelItem } from '../../components/models/data-model-item.interface';
 import { IDataStore } from '../../app.state';
+import { CurrentValuesDto } from '../../api/contracts/current-values/current-values.dto';
 
 export class IPollutionState {
-    data: IDataModel;
+    data: IValuesState;
 
     constructor() {
-        this.data = {};
+        this.data = {
+            byId: {}
+        };
     }
 }
 
-export interface IDataModel extends IDataStore {
-    items?: IDataModelItem[];
+export interface IValuesState extends IDataStore {
+    byId: {
+        [objectId: string]: CurrentValuesDto
+    };
 }
 
-export const getItems = (state: IDataModel) => state.items;
+export const getValues = (state: IValuesState) => state.byId;

@@ -18,7 +18,7 @@ export class ReportsComponent implements OnInit {
     this.snapshot.params.pipe()
       .subscribe(p => {
         this.reportId = p['id'];
-        this.reportInfo = this.service.getReportInfo(this.reportId);
+        // this.reportInfo = this.service.getReportInfo(this.reportId);
       });
   }
 

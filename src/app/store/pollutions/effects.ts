@@ -14,9 +14,9 @@ export class PollutionEffects {
     GetCurrentValue$: Observable<Action> = this.actions$
     .pipe(
         ofType<actions.GetCurrentValuesAction>(actions.GET_CURRENT_VALUES_ACTION),
-        switchMap(action => this.service.getRealValues(action.objectId)
+        switchMap(action => this.service.getCurrentValues(action.objectId)
             .pipe(
-                switchMap(result => of(new actions.GetCurrentValuesActionSuccess(result))),
+                switchMap(result => of(new actions.GetCurrentValuesActionSuccess(result, action.objectId))),
                 catchError(error => of(new actions.GetCurrentValuesActionError(error)))
             )
         ),

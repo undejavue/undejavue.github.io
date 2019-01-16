@@ -6,7 +6,7 @@ import {
 } from '@ngrx/store';
 
 import { environment } from './../environments/environment';
-import { IPollutionState, getItems } from './store/pollutions/state';
+import { IPollutionState, getValues } from './store/pollutions/state';
 import { pollutionReducer } from './store/pollutions/reducer';
 
 import { storeFreeze } from 'ngrx-store-freeze';
@@ -61,4 +61,4 @@ export function reducer(state: any, action: any) {
     * The created selectors can also be composed together to select different
     * pieces of state.
     */
-    export const getPolutionItems = createSelector(getPollutionState, getItems);
+    export const getPolutionItems = createSelector(getPollutionState, getValues);

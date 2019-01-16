@@ -20,6 +20,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { ConfigEffects } from './store/configuration/effects';
 import { PollutionEffects } from './store/pollutions/effects';
 import { ReportsEffects } from './store/reports/effects';
+import { MapHelperService } from './services/map.helper.service';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -65,7 +66,8 @@ const appRoutes: Routes = [
     { provide: ConfigService, useFactory: configServiceFactory },
     PollutionService,
     WebApiClient,
-    WebApiService
+    WebApiService,
+    MapHelperService
   ],
   bootstrap: [AppComponent]
 })

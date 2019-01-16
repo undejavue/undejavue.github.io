@@ -1,5 +1,5 @@
 <div *ngIf="isReady && markers">
-  <app-map [markers]="markers"></app-map>
+  <app-map [markers]="markers" [data]="currentValues" (featureClick)="onFeatureClick()"></app-map>
   <div class="menu-overlay">
     <div class="flex-row justify-content-start align-self-center menu">
       <div class="pl-1">

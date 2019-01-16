@@ -19,11 +19,13 @@ export const pollutionReducer: Reducer<IPollutionState> = (state: IPollutionStat
         }
 
         case actions.GET_CURRENT_VALUES_ACTION_SUCCESS: {
+            const byId = {...state.data.byId};
+            byId[action.objectId] = action.payload;
             return {
                 ...state,
                 data: {
                     ...state.data,
-                    items: action.payload,
+                    byId,
                     loading: false,
                     error: false
                 }

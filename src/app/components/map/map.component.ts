@@ -1,6 +1,6 @@
 import 'ol/ol.css';
 import 'ol-popup/src/ol-popup.css';
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import Map from 'ol/Map';
 import XYZ from 'ol/source/XYZ';
 import View from 'ol/View';
@@ -43,6 +43,9 @@ import Mask from 'ol-ext/filter/Mask';
 import { Control } from 'ol/control';
 import Select from 'ol/interaction/Select';
 import { click, pointerMove, altKeyOnly } from 'ol/events/condition.js';
+import { CurrentValuesDto } from '../../api/contracts/current-values/current-values.dto';
+import { MapHelperService } from '../../../app/services/map.helper.service';
+import { IDataModelItem } from '../models/data-model-item.interface';
 
 @Component({
     selector: 'app-map',
@@ -50,10 +53,13 @@ import { click, pointerMove, altKeyOnly } from 'ol/events/condition.js';
     styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit {
+    @Output() featureClick: EventEmitter<any> = new EventEmitter();
+    @Input() markers: IMarker[];
+    @Input() data: { [objectId: string]: CurrentValuesDto; };
+
     map: Map;
     source: XYZ;
     mapCenter: IGeoPoint;
-    @Input() markers: IMarker[];
     features: Feature[];
     featureSize = {
         hover: 18,
@@ -68,7 +74,7 @@ export class MapComponent implements OnInit {
     countryName: string;
     countryGeoJson: string;
 
-    constructor(private service: PollutionService, private configService: ConfigService) {
+    constructor(private service: MapHelperService, private configService: ConfigService) {
         this.mapOptions = this.configService.get('mapOptions') as IMapOptions;
         this.mapCenter = this.mapOptions.center;
         this.countryName = this.mapOptions.country.name;
@@ -244,12 +250,24 @@ export class MapComponent implements OnInit {
             }));
         } else if (features.length === 1) {
             popup.hide();
-            const data = this.service.getFeatureValue(features);
-            const html = getPopupWindow(data, this.service.getPopupOptions());
+            // const data = this.getFeatureInfo(features);
+            const html = '<div>Test</div>'; // getPopupWindow(data, this.service.getPopupOptions());
             popup.show(coord, html);
+            this.getFeatureInfo(features);
         } else {
             popup.hide();
         }
+    }
+
+     getFeatureInfo(features) {
+        const f = features[0].get('features')[0];
+        const id = f.get('id');
+
+        this.featureClick.emit(id);
+        /* if (id && this.data && this.data[id]) {
+            const result = this.service.getFeatureValue(id, this.data[id]);
+            return result;
+        } */
     }
 
     // --- Style for feature

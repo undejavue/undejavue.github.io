@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { PollutionService } from './services/pollution.service';
 import { ConfigService } from './services/config.service';
+import { MapHelperService } from './services/map.helper.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +11,7 @@ export class AppComponent implements OnInit {
   title = 'env-pollution-bel';
   isReady = false;
 
-  constructor(private dataService: PollutionService, private config: ConfigService) { }
+  constructor(private dataService: MapHelperService, private config: ConfigService) { }
 
   ngOnInit() {
     this.dataService.isInitialized

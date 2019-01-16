@@ -4,11 +4,11 @@ import { Observable, of } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { switchMap, catchError } from 'rxjs/operators';
 import * as actions from './actions';
-import { PollutionService } from '../../services/pollution.service';
+import { MapHelperService } from '../../services/map.helper.service';
 
 @Injectable()
 export class ConfigEffects {
-    constructor(private actions$: Actions, private service: PollutionService) { }
+    constructor(private actions$: Actions, private service: MapHelperService) { }
 
     @Effect()
     GetDataModel$: Observable<Action> = this.actions$

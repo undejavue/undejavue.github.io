@@ -22,6 +22,7 @@
     "@angular/router": "~7.0.0",
     "@ngrx/effects": "^7.0.0",
     "@ngrx/store": "^7.0.0",
+    "@ngrx/store-devtools": "^7.0.0",
     "@types/jquery": "^3.3.22",
     "angular-osm": "^1.2.2",
     "core-js": "^2.5.4",
@@ -34,7 +35,7 @@
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.10.0",
+    "@angular-devkit/build-angular": "^0.12.1",
     "@angular/cli": "^7.0.7",
     "@angular/compiler-cli": "~7.0.0",
     "@angular/language-service": "~7.0.0",

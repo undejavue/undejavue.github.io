@@ -8,6 +8,7 @@ export class WebApiService {
     webApis: [{ [id: string]: string}];
 
     constructor(private config: ConfigService, private apiClient: WebApiClient) {
+        this.init();
     }
 
     init() {
