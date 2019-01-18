@@ -11,19 +11,9 @@ export class AppComponent implements OnInit {
   title = 'env-pollution-bel';
   isReady = false;
 
-  constructor(private dataService: MapHelperService, private config: ConfigService) { }
+  constructor() { }
 
   ngOnInit() {
-    this.dataService.isInitialized
-      .pipe()
-      .subscribe(result => {
-        this.isReady = result;
-        if (this.isReady) {
-          const owner = this.config.get('owner');
-          if (owner) {
-            this.title = owner.title;
-          }
-        }
-      });
+
   }
 }

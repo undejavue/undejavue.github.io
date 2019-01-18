@@ -4,17 +4,17 @@ import { GasDto } from './gas.dto';
 import { PpmDto } from './ppm.dto';
 
 export class CurrentValuesDto {
-    concentrations: ConcentrationsDto;
-    emissions: EmissionsDto;
-    gas: GasDto;
-    ppm: PpmDto;
-    updatedOn: string;
+    Concentration: ConcentrationsDto;
+    Emission: EmissionsDto;
+    Gas: GasDto;
+    Ppm: PpmDto;
+    UpdatedOn: string;
 
     constructor() {
-        this.concentrations = new ConcentrationsDto();
-        this.emissions = new EmissionsDto();
-        this.gas = new GasDto();
-        this.ppm = new PpmDto();
-        this.updatedOn = 'data is unavailable';
+        this.Concentration = new ConcentrationsDto();
+        this.Emission = new EmissionsDto();
+        this.Gas = new GasDto();
+        this.Ppm = new PpmDto();
+        this.UpdatedOn = 'data is unavailable';
     }
 }

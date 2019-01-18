@@ -12,6 +12,7 @@ export class WebApiClient {
     private http: HttpClient;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
+
     constructor(@Inject(HttpClient) http: HttpClient, ) {
         this.http = http;
     }
@@ -97,4 +98,16 @@ export class WebApiClient {
             }
         });
     }
+
+/*     jsonParseReviver = (value, key) => {
+        if (value && typeof value === 'object') {
+            for (let k in value) {
+              if (/^[A-Z]/.test(k) && Object.hasOwnProperty.call(value, k)) {
+                value[k.charAt(0).toLowerCase() + k.substring(1)] = value[k];
+                delete value[k];
+              }
+            }
+          }
+          return value;
+    } */
 }

@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { PollutionService } from '../../services/pollution.service';
 import { ConfigService } from '../../services/config.service';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../../app.state';
 import { GetCurrentValuesAction } from '../../store/pollutions/actions';
 import { CreateConfigurationAction } from '../../store/configuration/actions';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { BaseComponent } from '../base-component';
 import { IDataModelItem } from '../models/data-model-item.interface';
 import { pipe } from 'rxjs';
 import { IMarker } from '../models/marker.interface';
 import { CurrentValuesDto } from '../../api/contracts/current-values/current-values.dto';
 import { MapHelperService } from '../../services/map.helper.service';
+import { ModalDialogService, SimpleModalComponent } from 'ngx-modal-dialog';
+import { FixtureModalComponent } from '../modal/fixture-modal/fixture-modal.component';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-main-layout',
@@ -32,20 +35,22 @@ export class MainLayoutComponent extends BaseComponent implements OnInit {
   currentValues: { [objectId: string]: CurrentValuesDto; };
 
   constructor(private mapService: MapHelperService,
-    private pollutionService: PollutionService,
+    
     private config: ConfigService,
-    private store: Store<AppState>) {
+    private store: Store<AppState>,
+    private modalService: NgbModal) {
     super(config);
     this.mapService.init();
   }
 
   ngOnInit() {
+    this.mapService.init();
     this.mapService.isInitialized
-      .pipe()
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy))
       .subscribe(result => {
         this.isReady = result;
         if (this.isReady) {
-          this.pollutionService.init(this.mapService.getDefaults(), this.mapService.getParametres());
+          
           this.owner = this.config.get('owner');
           this.initActions();
 
@@ -110,6 +115,7 @@ export class MainLayoutComponent extends BaseComponent implements OnInit {
 
   onFeatureClick(event) {
     console.log('On Feature Click!', event);
+    // const modalRef = this.modalService.open(FixtureModalComponent);
   }
 
 }

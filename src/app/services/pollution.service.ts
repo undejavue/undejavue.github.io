@@ -48,10 +48,8 @@ export class PollutionService {
         return of([{ key: 'fake', value: 'fake' }]);
     }
 
-    getPollution(source: {}, dest: IPollutionModel[], type: PollutionType) {
-        if (!dest) {
-            dest = new Array<IPollutionModel>();
-        }
+    getPollution(source: {}, type: PollutionType) {
+        const dest = new Array<IPollutionModel>();
 
         Object.keys(source).forEach(key => {
             const param = this.parametres.find(p => p.id === key);
@@ -86,16 +84,19 @@ export class PollutionService {
 
     // Mapping section
     mapValuesDtoToModel(dto: CurrentValuesDto, model: IDataModelItem): IDataModelItem {
-        model.emissions = this.getPollution(dto.concentrations, model.concentrations, PollutionType.Emission);
-        model.concentrations = this.getPollution(dto.emissions, model.emissions, PollutionType.Emission);
+        model.emissions = this.getPollution(dto.Concentration, PollutionType.Emission);
+        model.concentrations = this.getPollution(dto.Emission, PollutionType.Emission);
 
-        model.emissions = this.getPollution(dto.gas, model.emissions, PollutionType.Emission);
+        model.emissions = model.emissions.concat(this.getPollution(dto.Gas, PollutionType.Emission));
 
-        const arr = (dto.updatedOn as string).split('T');
-        const date = arr[0];
-        const time = arr[1].split('.')[0];
-
-        model.datetime = `${date} ${time}`;
+        const arr = (dto.UpdatedOn as string).split('T');
+        if (arr.length > 1) {
+            const date = arr[0];
+            const time = arr[1].split('.')[0];
+            model.datetime = `${date} ${time}`;
+        } else {
+            model.datetime = dto.UpdatedOn;
+        }
 
         return model;
     }

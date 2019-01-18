@@ -5,6 +5,8 @@ import { IMarker } from '../../components/models/marker.interface';
 export class IConfigState {
     dataModel: IDataModelState;
     marker?: IMarkerStore;
+    defaults: any;
+    parametres: any;
     constructor() {
         this.dataModel = {
             loading: true,

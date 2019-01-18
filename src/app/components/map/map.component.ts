@@ -46,13 +46,17 @@ import { click, pointerMove, altKeyOnly } from 'ol/events/condition.js';
 import { CurrentValuesDto } from '../../api/contracts/current-values/current-values.dto';
 import { MapHelperService } from '../../../app/services/map.helper.service';
 import { IDataModelItem } from '../models/data-model-item.interface';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../app.state';
+import { takeUntil } from 'rxjs/operators';
+import { BaseComponent } from '../base-component';
 
 @Component({
     selector: 'app-map',
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements OnInit {
+export class MapComponent extends BaseComponent implements OnInit {
     @Output() featureClick: EventEmitter<any> = new EventEmitter();
     @Input() markers: IMarker[];
     @Input() data: { [objectId: string]: CurrentValuesDto; };
@@ -73,21 +77,44 @@ export class MapComponent implements OnInit {
     withCountryBorder: boolean;
     countryName: string;
     countryGeoJson: string;
+    isSpinner: boolean;
 
-    constructor(private service: MapHelperService, private configService: ConfigService) {
-        this.mapOptions = this.configService.get('mapOptions') as IMapOptions;
-        this.mapCenter = this.mapOptions.center;
-        this.countryName = this.mapOptions.country.name;
-        this.withCountryBorder = this.mapOptions.country.withBorder;
-        this.countryGeoJson = './assets/data/' + this.mapOptions.country.geoJson;
+    realObjects: IDataModelItem[];
+
+    constructor(private service: MapHelperService,
+        private configService: ConfigService,
+        private pollutionService: PollutionService,
+        private store: Store<AppState>) {
+            super(configService);
+            this.mapOptions = this.configService.get('mapOptions') as IMapOptions;
+            this.mapCenter = this.mapOptions.center;
+            this.countryName = this.mapOptions.country.name;
+            this.withCountryBorder = this.mapOptions.country.withBorder;
+            this.countryGeoJson = './assets/data/' + this.mapOptions.country.geoJson;
     }
 
     ngOnInit() {
+        this.pollutionService.init(this.service.getParametres(), this.service.getDefaults());
         const layer = this.createMap(this.withCountryBorder);
         this.addFeatures(layer);
         this.addOverlays();
         this.addIteractions();
         // this.navigate();
+
+        this.store.select(s => s.config.dataModel)
+        .pipe(takeUntil(this.destroy))
+        .subscribe(state => {
+            if (state && !state.loading) {
+                this.realObjects = state.items;
+            }
+        });
+    }
+
+    getObjectItem(objectId: string) {
+        if (this.realObjects && this.realObjects.length > 0) {
+            const found =  this.realObjects.find(x => x.id === objectId);
+            if (found) { return found; }
+        }
     }
 
     createMap(withBorder: boolean) {
@@ -236,7 +263,7 @@ export class MapComponent implements OnInit {
         return feature;
     }
 
-    displayFeatureInfo(pixel, popup, coord) {
+    displayFeatureInfo(pixel, popup, coords) {
         const features = [];
         this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
             feature.set('state', 'selected');
@@ -245,29 +272,39 @@ export class MapComponent implements OnInit {
         if (features.length > 1
             || (features.length === 1 && features[0].get('features').length > 1)) {
             this.map.setView(new View({
-                center: coord,
+                center: coords,
                 zoom: this.map.getView().getZoom() + 3
             }));
         } else if (features.length === 1) {
             popup.hide();
-            // const data = this.getFeatureInfo(features);
-            const html = '<div>Test</div>'; // getPopupWindow(data, this.service.getPopupOptions());
-            popup.show(coord, html);
-            this.getFeatureInfo(features);
+            this.getFeatureInfo(features, popup, coords);
         } else {
             popup.hide();
         }
     }
 
-     getFeatureInfo(features) {
+    getFeatureInfo(features, popup, coords) {
         const f = features[0].get('features')[0];
         const id = f.get('id');
+        const result = this.getObjectItem(id);
 
-        this.featureClick.emit(id);
-        /* if (id && this.data && this.data[id]) {
-            const result = this.service.getFeatureValue(id, this.data[id]);
-            return result;
-        } */
+        const subscr = this.store.select(state => state.pollutions.data)
+            .pipe()
+            .subscribe(s => {
+                if (s) {
+                    this.isSpinner = s.loading;
+                    if (!s.loading && s.byId) {
+                        const byId = s.byId[id];
+                        if (byId) {
+                            console.log('Fixture Values: ', byId);
+                            this.pollutionService.mapValuesDtoToModel(byId, result);
+                            const html = getPopupWindow(result, this.service.getPopupOptions());
+                            popup.show(coords, html);
+                            if (subscr) { subscr.unsubscribe(); }
+                        }
+                    }
+                }
+            });
     }
 
     // --- Style for feature

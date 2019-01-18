@@ -21,6 +21,9 @@ import { ConfigEffects } from './store/configuration/effects';
 import { PollutionEffects } from './store/pollutions/effects';
 import { ReportsEffects } from './store/reports/effects';
 import { MapHelperService } from './services/map.helper.service';
+import { ModalDialogModule } from 'ngx-modal-dialog';
+import { FixtureModalComponent } from './components/modal/fixture-modal/fixture-modal.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -41,7 +44,8 @@ const appRoutes: Routes = [
     MainLayoutComponent,
     MapComponent,
     ReportsComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    FixtureModalComponent
   ],
   imports: [
     HttpModule,
@@ -61,6 +65,8 @@ const appRoutes: Routes = [
       PollutionEffects,
       ReportsEffects
     ]),
+    ModalDialogModule.forRoot(),
+    NgbModule
   ],
   providers: [
     { provide: ConfigService, useFactory: configServiceFactory },
@@ -68,6 +74,9 @@ const appRoutes: Routes = [
     WebApiClient,
     WebApiService,
     MapHelperService
+  ],
+  entryComponents: [
+    FixtureModalComponent
   ],
   bootstrap: [AppComponent]
 })
