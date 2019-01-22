@@ -1,15 +1,15 @@
 export class EmissionsDto {
-    CO: number;
-    CO2: number;
-    NO: number;
-    NO2: number;
-    SO2: number;
+    co: number;
+    co2: number;
+    no: number;
+    no2: number;
+    so2: number;
 
     constructor() {
-        this.CO = 0.000;
-        this.CO2 = 0.0;
-        this.NO = 0.000;
-        this.NO2 = 0.000;
-        this.SO2 = 0.000;
+        this.co = 0.000;
+        this.co2 = 0.0;
+        this.no = 0.000;
+        this.no2 = 0.000;
+        this.so2 = 0.000;
     }
 }

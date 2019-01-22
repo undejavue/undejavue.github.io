@@ -11,6 +11,7 @@ import { WebApiService } from './webapi.service';
 import { CurrentValuesDto } from '../api/contracts/current-values/current-values.dto';
 import { ConcentrationsDto } from '../api/contracts/current-values/concentrations.dto';
 import { map } from 'rxjs/operators';
+import { isUndefined, isNull } from 'util';
 
 
 
@@ -52,10 +53,11 @@ export class PollutionService {
         const dest = new Array<IPollutionModel>();
 
         Object.keys(source).forEach(key => {
-            const param = this.parametres.find(p => p.id === key);
-            if (param) {
+            const param = this.parametres
+                .find(p => (p.id as string).toLowerCase() === key.toLowerCase());
+            if (param && this.isValid(source[key])) {
                 const pollution: IPollutionModel = {
-                    name: key,
+                    name: key.toUpperCase(),
                     value: source[key],
                     dim: this.getDimension(type),
                     desc: param ? param.name : ''
@@ -65,6 +67,10 @@ export class PollutionService {
         });
 
         return dest;
+    }
+
+    isValid(value) {
+        return !isNull(value) && !isUndefined(value);
     }
 
     getDimension(type: PollutionType) {
@@ -84,18 +90,17 @@ export class PollutionService {
 
     // Mapping section
     mapValuesDtoToModel(dto: CurrentValuesDto, model: IDataModelItem): IDataModelItem {
-        model.emissions = this.getPollution(dto.Concentration, PollutionType.Emission);
-        model.concentrations = this.getPollution(dto.Emission, PollutionType.Emission);
+        model.emissions = this.getPollution(dto.concentration, PollutionType.Concentration);
+        model.concentrations = this.getPollution(dto.emission, PollutionType.Emission);
+        model.emissions = model.emissions.concat(this.getPollution(dto.gas, PollutionType.Emission));
 
-        model.emissions = model.emissions.concat(this.getPollution(dto.Gas, PollutionType.Emission));
-
-        const arr = (dto.UpdatedOn as string).split('T');
+        const arr = (dto.updatedOn as string).split('T');
         if (arr.length > 1) {
             const date = arr[0];
             const time = arr[1].split('.')[0];
             model.datetime = `${date} ${time}`;
         } else {
-            model.datetime = dto.UpdatedOn;
+            model.datetime = dto.updatedOn;
         }
 
         return model;

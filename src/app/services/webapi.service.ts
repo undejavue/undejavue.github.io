@@ -2,6 +2,9 @@ import { ConfigService } from './config.service';
 import { Injectable } from '@angular/core';
 import { WebApiClient } from '../api/web-api-client';
 import { of } from 'rxjs';
+import { PollutionTypeEnum } from '../api/contracts/reports/pollution-type.enum';
+import { ReportPeriodEnum } from '../api/contracts/reports/report-period.enum';
+import { ReportDto } from '../api/contracts/reports/report.dto';
 
 @Injectable()
 export class WebApiService {
@@ -23,6 +26,15 @@ export class WebApiService {
             return this.apiClient.getValues(url);
         } else {
             of(null);
+        }
+    }
+
+    getReport(objectId: string, type: PollutionTypeEnum, period: ReportPeriodEnum) {
+        const url = this.webApis[objectId];
+        if ( url) {
+            return this.apiClient.getReport(url, type, period);
+        } else {
+            of(new ReportDto());
         }
     }
 

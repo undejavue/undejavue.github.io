@@ -50,6 +50,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../app.state';
 import { takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../base-component';
+import { GetCurrentValuesAction } from 'src/app/store/pollutions/actions';
 
 @Component({
     selector: 'app-map',
@@ -189,12 +190,23 @@ export class MapComponent extends BaseComponent implements OnInit {
         });
 
         this.map.addOverlay(popup);
+
+        const loadingPopup = new Popup({
+            element: document.getElementById('loading-popup'),
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            }
+        });
+
+        this.map.addOverlay(loadingPopup);
+
         this.map.on('click', (evt) => {
             if (evt.dragging) {
                 popup.hide();
                 return;
             }
-            this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate);
+            this.displayFeatureInfo(this.map.getEventPixel(evt.originalEvent), popup, evt.coordinate, loadingPopup);
         });
 
         this.map.on('pointermove', (e) => {
@@ -263,7 +275,7 @@ export class MapComponent extends BaseComponent implements OnInit {
         return feature;
     }
 
-    displayFeatureInfo(pixel, popup, coords) {
+    displayFeatureInfo(pixel, popup, coords, loading) {
         const features = [];
         this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
             feature.set('state', 'selected');
@@ -277,16 +289,20 @@ export class MapComponent extends BaseComponent implements OnInit {
             }));
         } else if (features.length === 1) {
             popup.hide();
-            this.getFeatureInfo(features, popup, coords);
+            loading.hide();
+            const html = '<div style="margin: 8px">Loading&#8230;</div>';
+            loading.show(coords, html);
+            this.getFeatureInfo(features, popup, coords, loading);
         } else {
             popup.hide();
         }
     }
 
-    getFeatureInfo(features, popup, coords) {
+    getFeatureInfo(features, popup, coords, loading) {
         const f = features[0].get('features')[0];
         const id = f.get('id');
         const result = this.getObjectItem(id);
+        this.store.dispatch(new GetCurrentValuesAction(id));
 
         const subscr = this.store.select(state => state.pollutions.data)
             .pipe()
@@ -294,6 +310,7 @@ export class MapComponent extends BaseComponent implements OnInit {
                 if (s) {
                     this.isSpinner = s.loading;
                     if (!s.loading && s.byId) {
+                        loading.hide();
                         const byId = s.byId[id];
                         if (byId) {
                             console.log('Fixture Values: ', byId);

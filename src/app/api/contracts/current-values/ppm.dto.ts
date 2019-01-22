@@ -1,13 +1,13 @@
 export class PpmDto {
-    CO: number;
-    CO2: number;
-    NO: number;
-    SO2: number;
+    co: number;
+    co2: number;
+    no: number;
+    so2: number;
 
     constructor() {
-        this.CO = 0;
-        this.CO2 = 0;
-        this.NO = 0;
-        this.SO2 = 0;
+        this.co = 0;
+        this.co2 = 0;
+        this.no = 0;
+        this.so2 = 0;
     }
 }

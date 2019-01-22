@@ -1,11 +1,11 @@
 export class GasDto {
     flow: number;
-    P: number;
-    T: number;
+    p: number;
+    t: number;
 
     constructor() {
         this.flow = 0;
-        this.P = 0;
-        this.T = 0;
+        this.p = 0;
+        this.t = 0;
     }
 }
