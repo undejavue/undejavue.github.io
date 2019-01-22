@@ -5,16 +5,30 @@ import { Action } from '@ngrx/store';
 import { switchMap, catchError } from 'rxjs/operators';
 import * as actions from './actions';
 import { PollutionService } from '../../services/pollution.service';
+import { WebApiService } from '../../services/webapi.service';
 
 @Injectable()
 export class ReportsEffects {
-    constructor(private actions$: Actions, private service: PollutionService) { }
+    constructor(private actions$: Actions, private service: WebApiService) { }
 
     @Effect()
-    GetCurrentValue$: Observable<Action> = this.actions$
+    GetReportsInfo$: Observable<Action> = this.actions$
+    .pipe(
+        ofType<actions.GetReportsInfoAction>(actions.GET_REPORTS_INFO_ACTION),
+        switchMap(action => this.service.getDataObjects()
+            .pipe(
+                switchMap(result => of(new actions.GetReportsInfoActionSuccess(result))),
+                catchError(error => of(new actions.GetReportsInfoActionError(error)))
+            )
+        ),
+        catchError(error => of(new actions.GetReportActionError(error)))
+    );
+
+    @Effect()
+    GetReportData$: Observable<Action> = this.actions$
     .pipe(
         ofType<actions.GetReportAction>(actions.GET_REPORT_ACTION),
-        switchMap(action => this.service.getReportData(action.objectId)
+        switchMap(action => this.service.getReport(action.objectId, action.pollution, action.period)
             .pipe(
                 switchMap(result => of(new actions.GetReportActionSuccess(result, action.objectId))),
                 catchError(error => of(new actions.GetReportActionError(error)))
@@ -22,4 +36,5 @@ export class ReportsEffects {
         ),
         catchError(error => of(new actions.GetReportActionError(error)))
     );
+
 }

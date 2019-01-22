@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { PollutionTypeEnum } from '../api/contracts/reports/pollution-type.enum';
 import { ReportPeriodEnum } from '../api/contracts/reports/report-period.enum';
 import { ReportDto } from '../api/contracts/reports/report.dto';
+import { filter } from 'rxjs/operators';
 
 @Injectable()
 export class WebApiService {
@@ -36,6 +37,10 @@ export class WebApiService {
         } else {
             of(new ReportDto());
         }
+    }
+
+    getDataObjects() {
+        return this.apiClient.getObjectsInfo();
     }
 
 }

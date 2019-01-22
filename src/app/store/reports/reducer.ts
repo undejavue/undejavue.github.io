@@ -42,6 +42,39 @@ export const reportsReducer: Reducer<IReportState> = (state: IReportState = new 
                 }
             };
         }
+
+        case actions.GET_REPORTS_INFO_ACTION: {
+            return {
+                ...state,
+                info: {
+                    ...state.info,
+                    loading: true,
+                    error: false
+                }
+            };
+        }
+
+        case actions.GET_REPORTS_INFO_ACTION_SUCCESS: {
+            return {
+                ...state,
+                info: {
+                    items: action.payload,
+                    loading: false,
+                    error: false
+                }
+            };
+        }
+
+        case actions.GET_REPORTS_INFO_ACTION_ERROR: {
+            return {
+                ...state,
+                info: {
+                    ...state.info,
+                    loading: false,
+                    error: true
+                }
+            };
+        }
     }
 
     return state;

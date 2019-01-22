@@ -2,23 +2,79 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PollutionService } from '../../services/pollution.service';
 import { IDataModelItem } from '../models/data-model-item.interface';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../app.state';
+import { takeUntil } from 'rxjs/operators';
+import { BaseComponent } from '../base-component';
+import { ConfigService } from '../../services/config.service';
+import { GetReportsInfoAction, GetReportAction } from '../../store/reports/actions';
+import { PollutionTypeEnum } from '../../api/contracts/reports/pollution-type.enum';
+import { ReportPeriodEnum } from '../../api/contracts/reports/report-period.enum';
+import { ReportDto } from '../../api/contracts/reports/report.dto';
+
+export interface ISelectedReport {
+  type: PollutionTypeEnum;
+  period: ReportPeriodEnum;
+  id: string;
+}
 
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.scss']
 })
-export class ReportsComponent implements OnInit {
+export class ReportsComponent extends BaseComponent implements OnInit {
   reportId: any;
   reportInfo: IDataModelItem;
+  isSpinner: boolean;
+  selectedReport: ISelectedReport;
+  report: ReportDto;
 
-  constructor(private snapshot: ActivatedRoute, private service: PollutionService) { }
+  constructor(private snapshot: ActivatedRoute,
+    private service: PollutionService,
+    private store: Store<AppState>,
+    config: ConfigService) {
+    super(config);
+  }
 
   ngOnInit() {
+
     this.snapshot.params.pipe()
       .subscribe(p => {
         this.reportId = p['id'];
-        // this.reportInfo = this.service.getReportInfo(this.reportId);
+        if (this.reportId) {
+          this.selectedReport = {
+            type: PollutionTypeEnum.Emission,
+            period: ReportPeriodEnum.ByDay,
+            id: this.reportId
+          };
+        }
+      });
+
+    this.store.dispatch(new GetReportsInfoAction());
+    this.store.select(s => s.reports.info)
+      .pipe(takeUntil(this.destroy))
+      .subscribe(info => {
+        this.isSpinner = info.loading;
+        if (!info.loading) {
+          this.reportInfo = info.items.find(item => item.id === this.reportId);
+
+          if (this.reportInfo && this.selectedReport) {
+            this.store.dispatch(
+              new GetReportAction(this.selectedReport.id,
+                this.selectedReport.type,
+                this.selectedReport.period));
+          }
+        }
+      });
+
+    this.store.select(s => s.reports.data)
+      .pipe(takeUntil(this.destroy))
+      .subscribe(data => {
+        this.isSpinner = data.loading;
+        if (!data.loading && data.byObjectId) {
+          this.report = data.byObjectId[this.reportId];
+        }
       });
   }
 

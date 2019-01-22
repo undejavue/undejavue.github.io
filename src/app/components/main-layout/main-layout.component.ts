@@ -35,7 +35,7 @@ export class MainLayoutComponent extends BaseComponent implements OnInit {
   currentValues: { [objectId: string]: CurrentValuesDto; };
 
   constructor(private mapService: MapHelperService,
-    
+
     private config: ConfigService,
     private store: Store<AppState>,
     private modalService: NgbModal) {
@@ -50,7 +50,7 @@ export class MainLayoutComponent extends BaseComponent implements OnInit {
       .subscribe(result => {
         this.isReady = result;
         if (this.isReady) {
-          
+
           this.owner = this.config.get('owner');
           this.initActions();
 
@@ -96,21 +96,21 @@ export class MainLayoutComponent extends BaseComponent implements OnInit {
 
   createMapMarkers() {
     const result = new Array<IMarker>();
-        if (this.dataModel) {
-            this.dataModel.map(obj => {
-                const m: IMarker = {
-                    id: obj.id,
-                    title: obj.title,
-                    address: obj.address,
-                    geo: {
-                        longtitude: obj.longtitude,
-                        latitude: obj.latitude
-                    }
-                };
-                result.push(m);
-            });
-            return result;
-        }
+    if (this.dataModel) {
+      this.dataModel.map(obj => {
+        const m: IMarker = {
+          id: obj.id,
+          title: obj.title,
+          address: obj.address,
+          geo: {
+            longtitude: obj.longtitude,
+            latitude: obj.latitude
+          }
+        };
+        result.push(m);
+      });
+      return result;
+    }
   }
 
   onFeatureClick(event) {

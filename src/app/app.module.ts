@@ -24,6 +24,8 @@ import { MapHelperService } from './services/map.helper.service';
 import { ModalDialogModule } from 'ngx-modal-dialog';
 import { FixtureModalComponent } from './components/modal/fixture-modal/fixture-modal.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ByDayComponent } from './components/reports/by-day/by-day.component';
+import { GroupByPipe } from './pipes/groupby.pipe';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -45,7 +47,8 @@ const appRoutes: Routes = [
     MapComponent,
     ReportsComponent,
     PageNotFoundComponent,
-    FixtureModalComponent
+    FixtureModalComponent,
+    ByDayComponent
   ],
   imports: [
     HttpModule,
@@ -73,7 +76,8 @@ const appRoutes: Routes = [
     PollutionService,
     WebApiClient,
     WebApiService,
-    MapHelperService
+    MapHelperService,
+    GroupByPipe,
   ],
   entryComponents: [
     FixtureModalComponent

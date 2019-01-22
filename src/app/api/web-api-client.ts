@@ -2,15 +2,17 @@ import { ConfigService } from '../services/config.service';
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponseBase, HttpResponse } from '@angular/common/http';
 import { Observable, from, throwError, of } from 'rxjs';
-import { mergeMap, catchError } from 'rxjs/operators';
+import { mergeMap, catchError, switchMap } from 'rxjs/operators';
 import { SwaggerException } from './swagger-exception';
 import { PollutionTypeEnum } from './contracts/reports/pollution-type.enum';
 import { ReportPeriodEnum } from './contracts/reports/report-period.enum';
 import { ReportDto } from './contracts/reports/report.dto';
+import { pipe } from '@angular/core/src/render3';
 
 @Injectable()
 export class WebApiClient {
     webApis: [{ [id: string]: string }];
+    headers = { 'content-type': 'application/json' };
 
     private http: HttpClient;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -32,6 +34,14 @@ export class WebApiClient {
         return Promise.resolve(options);
     }
 
+    getObjectsInfo() {
+        return this.get('assets/data/info-objects.json');
+    }
+
+    getParametres() {
+        return this.http.get('assets/data/parametres.json', { headers: this.headers }).pipe(switchMap(r => this.blobToText(r)));
+    }
+
     getReport(baseUrl: string, type: PollutionTypeEnum, period: ReportPeriodEnum): Observable<ReportDto | null> {
         let url_ = `${baseUrl}/api/reports/get?type=${type}&period=${period}`;
         url_ = url_.replace(/[?&]$/, '');
@@ -47,11 +57,11 @@ export class WebApiClient {
         return from(this.transformOptions(options_)).pipe(mergeMap(transformedOptions_ => {
             return this.http.request('get', url_, transformedOptions_);
         })).pipe(mergeMap((response_: any) => {
-            return this.processGetValues(response_);
+            return this.processGet(response_);
         })).pipe(catchError((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetValues(<any>response_);
+                    return this.processGet(<any>response_);
                 } catch (e) {
                     return <Observable<any | null>><any>throwError(e);
                 }
@@ -76,11 +86,11 @@ export class WebApiClient {
         return from(this.transformOptions(options_)).pipe(mergeMap(transformedOptions_ => {
             return this.http.request('get', url_, transformedOptions_);
         })).pipe(mergeMap((response_: any) => {
-            return this.processGetValues(response_);
+            return this.processGet(response_);
         })).pipe(catchError((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetValues(<any>response_);
+                    return this.processGet(<any>response_);
                 } catch (e) {
                     return <Observable<any | null>><any>throwError(e);
                 }
@@ -90,7 +100,33 @@ export class WebApiClient {
         }));
     }
 
-    protected processGetValues(response: HttpResponseBase): Observable<any | null> {
+    get(url): Observable<any | null>  {
+        const options_: any = {
+            observe: 'response',
+            responseType: 'blob',
+            headers: new HttpHeaders({
+                'Accept': 'application/json'
+            })
+        };
+
+        return from(this.transformOptions(options_)).pipe(mergeMap(transformedOptions_ => {
+            return this.http.request('get', url, transformedOptions_);
+        })).pipe(mergeMap((response_: any) => {
+            return this.processGet(response_);
+        })).pipe(catchError((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(<any>response_);
+                } catch (e) {
+                    return <Observable<any | null>><any>throwError(e);
+                }
+            } else {
+                return <Observable<any | null>><any>throwError(response_);
+            }
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<any | null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -131,15 +167,15 @@ export class WebApiClient {
         });
     }
 
-/*     jsonParseReviver = (value, key) => {
-        if (value && typeof value === 'object') {
-            for (let k in value) {
-              if (/^[A-Z]/.test(k) && Object.hasOwnProperty.call(value, k)) {
-                value[k.charAt(0).toLowerCase() + k.substring(1)] = value[k];
-                delete value[k];
+    /*     jsonParseReviver = (value, key) => {
+            if (value && typeof value === 'object') {
+                for (let k in value) {
+                  if (/^[A-Z]/.test(k) && Object.hasOwnProperty.call(value, k)) {
+                    value[k.charAt(0).toLowerCase() + k.substring(1)] = value[k];
+                    delete value[k];
+                  }
+                }
               }
-            }
-          }
-          return value;
-    } */
+              return value;
+        } */
 }

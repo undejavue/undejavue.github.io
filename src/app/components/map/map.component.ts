@@ -50,7 +50,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../app.state';
 import { takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../base-component';
-import { GetCurrentValuesAction } from 'src/app/store/pollutions/actions';
+import { GetCurrentValuesAction } from '../../store/pollutions/actions';
 
 @Component({
     selector: 'app-map',

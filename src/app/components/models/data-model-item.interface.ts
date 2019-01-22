@@ -6,8 +6,8 @@ export interface IDataModelItem {
     title: string;
     address: string;
     datetime?: string;
-    latitude: number;
-    longtitude: number;
+    latitude?: number;
+    longtitude?: number;
     information: IObjectInfo;
     emissions?: IPollutionModel[];
     concentrations?: IPollutionModel[];
