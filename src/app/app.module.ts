@@ -26,6 +26,7 @@ import { FixtureModalComponent } from './components/modal/fixture-modal/fixture-
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ByDayComponent } from './components/reports/by-day/by-day.component';
 import { GroupByPipe } from './pipes/groupby.pipe';
+import { ReportTableComponent } from './components/reports/report-table/report-table.component';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -48,7 +49,8 @@ const appRoutes: Routes = [
     ReportsComponent,
     PageNotFoundComponent,
     FixtureModalComponent,
-    ByDayComponent
+    ByDayComponent,
+    ReportTableComponent
   ],
   imports: [
     HttpModule,

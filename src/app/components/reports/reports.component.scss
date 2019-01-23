@@ -1,3 +1,35 @@
+.app-reports {
+    margin: 1rem;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.42em;
+    background-color: white;
+    height: calc(100vh);
+    .header {
+        background: rgba(226, 226, 226, 0.5);
+        border-bottom: 1px solid lightgray;
+        height: 4.2rem;
+        width: 100%;
+        .title {
+            font-size: 1.2rem;
+            color: rgba(41, 41, 41, 0.9)
+        }
+        .text {
+            font-size: 0.9rem;
+            color: rgba(78, 78, 78, 0.9)
+        }
+        &:hover {
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+            transition: all 400ms ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+    }
+    .content {
+        height: calc(100vh);
+        overflow: auto;
+    }
+}
+
 .on-center {
     position: fixed;
     top: 50%;
@@ -14,30 +46,4 @@
     font-size: 1.2rem;
     font-weight: 700;
     color: rgba(48, 48, 48, 0.9);
-}
-
-.app-reports {
-    .header{
-    background: rgba(226, 226, 226, 0.5);
-    border-bottom: 1px solid lightgray;
-    height: 4.2rem;
-    .title {
-        font-size: 1.2rem;
-        color: rgba(41, 41, 41, 0.9)
-    }
-    .text {
-        font-size: 0.9rem;
-        color: rgba(78, 78, 78, 0.9)
-    }
-    &:hover {
-        box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-        transition: all 400ms ease;
-        background: rgba(255, 255, 255, 0.9);
-        }
-        
-    }
-    .content {
-        height: calc(100vh);
-        overflow: auto;
-    }
 }

@@ -10,8 +10,10 @@ import { GroupByPipe } from '../../../pipes/groupby.pipe';
 })
 export class ByDayComponent implements OnInit {
   @Input() data: ReportDto;
+  @Input() reportTitle: string;
   dataset = [];
   headerRow: any;
+  
   constructor(protected groupby: GroupByPipe) { }
 
   ngOnInit() {

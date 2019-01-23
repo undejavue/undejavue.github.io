@@ -37,6 +37,7 @@ export class WebApiService {
         } else {
             of(new ReportDto());
         }
+        // return of(new ReportDto());
     }
 
     getDataObjects() {

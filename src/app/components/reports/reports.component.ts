@@ -29,13 +29,20 @@ export class ReportsComponent extends BaseComponent implements OnInit {
   isSpinner: boolean;
   selectedReport: ISelectedReport;
   report: ReportDto;
+  owner: {
+    name: string,
+    title: string,
+    site: string,
+    department: string
+  };
 
   constructor(private snapshot: ActivatedRoute,
     private service: PollutionService,
     private store: Store<AppState>,
-    config: ConfigService,
+    private config: ConfigService,
     private router: Router) {
     super(config);
+    this.owner = this.config.get('owner');
   }
 
   ngOnInit() {
@@ -52,6 +59,18 @@ export class ReportsComponent extends BaseComponent implements OnInit {
         }
       });
 
+    this.snapshot.queryParams.pipe()
+      .subscribe(params => {
+        this.selectedReport.type = params['type'] || PollutionTypeEnum.Concentration;
+        this.selectedReport.period = params['period'] || ReportPeriodEnum.ByDay;
+        if (this.reportInfo && this.selectedReport) {
+          this.store.dispatch(
+            new GetReportAction(this.selectedReport.id,
+              this.selectedReport.type,
+              this.selectedReport.period));
+        }
+      });
+
     this.store.dispatch(new GetReportsInfoAction());
     this.store.select(s => s.reports.info)
       .pipe(takeUntil(this.destroy))
@@ -59,13 +78,6 @@ export class ReportsComponent extends BaseComponent implements OnInit {
         this.isSpinner = info.loading;
         if (!info.loading) {
           this.reportInfo = info.items.find(item => item.id === this.reportId);
-
-          if (this.reportInfo && this.selectedReport) {
-            this.store.dispatch(
-              new GetReportAction(this.selectedReport.id,
-                this.selectedReport.type,
-                this.selectedReport.period));
-          }
         }
       });
 
@@ -77,6 +89,13 @@ export class ReportsComponent extends BaseComponent implements OnInit {
           this.report = data.byObjectId[this.reportId];
         }
       });
+
+
+  }
+
+  isActive(tabId: string) {
+    const result = tabId === `${this.selectedReport.type}-${this.selectedReport.period}`;
+    return result;
   }
 
 }

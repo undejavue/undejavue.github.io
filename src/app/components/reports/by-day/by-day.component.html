@@ -1,16 +1,4 @@
 <div *ngIf="data else spinner">
-  <div class="flex-row p-3 title">Концентрации загрязняющих веществ за сутки</div>
-  <div *ngIf="headerRow" class="flex-row">
-      <div style="flex-basis: 15%">Дата</div>
-    <div *ngFor="let item of headerRow; let i=index" style="flex-basis: 15%">
-        
-        <div>{{item.id}}</div>
-    </div>
-  </div>
-  <div *ngFor="let row of dataset" class="flex-row">
-    <div style="flex-basis: 15%">{{row[0].timeStamp | date:'dd/MM/yyyy | HH:mm'}}</div>
-    <div *ngFor="let item of row; let i=index" style="flex-basis: 15%">
-      <div>{{item.value}}</div>
-    </div>
-  </div>
+  <div class="flex-row p-3 title">{{reportTitle}}</div>
+  <app-report-table [dataset]="dataset" [headerRow]="headerRow"></app-report-table>
 </div>
