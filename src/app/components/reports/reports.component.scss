@@ -1,15 +1,15 @@
+@charset "UTF-8";
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
+
 .app-reports {
-    margin: 1rem;
     font-family: 'Open Sans', sans-serif;
     font-weight: 300;
     line-height: 1.42em;
-    background-color: white;
-    height: calc(100vh);
+    
     .header {
         background: rgba(226, 226, 226, 0.5);
         border-bottom: 1px solid lightgray;
         height: 4.2rem;
-        width: 100%;
         .title {
             font-size: 1.2rem;
             color: rgba(41, 41, 41, 0.9)
@@ -23,10 +23,6 @@
             transition: all 400ms ease;
             background: rgba(255, 255, 255, 0.9);
         }
-    }
-    .content {
-        height: calc(100vh);
-        overflow: auto;
     }
 }
 
@@ -45,5 +41,36 @@
 .title {
     font-size: 1.2rem;
     font-weight: 700;
+    color: rgba(48, 48, 48, 0.9);
+}
+
+.image-logo{
+    width: 10rem;
+    position: relative;
+    overflow: hidden;
+    // border-radius: 5%;
+    // border: 1px solid lightgray;
+    &:hover {
+      cursor: pointer;
+      // box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transform: translateY(1px);
+      transition: all 400ms ease;
+  }
+}
+
+.profile-pic {
+    display: inline;
+    margin: 0 auto;
+    width: 100%;
+    height: auto;
+}
+
+.logo-holder {
+    border-bottom: 1px solid rgb(192, 192, 192);
+}
+
+.page-title {
+    font-size: 2.2rem;
+    font-weight: bold;
     color: rgba(48, 48, 48, 0.9);
 }

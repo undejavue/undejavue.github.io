@@ -13,6 +13,7 @@ export class ByDayComponent implements OnInit {
   @Input() reportTitle: string;
   dataset = [];
   headerRow: any;
+  updatedOn: any;
   
   constructor(protected groupby: GroupByPipe) { }
 
@@ -29,6 +30,7 @@ export class ByDayComponent implements OnInit {
       });
       if (this.dataset && this.dataset.length > 0) {
         this.headerRow = this.dataset[0];
+        this.updatedOn = this.dataset[0][0].timeStamp;
       }
     }
   }

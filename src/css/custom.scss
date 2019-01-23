@@ -2,14 +2,38 @@
     border-radius: 0.25rem;
     width: 100%;
     opacity: 0.8;
-    margin: 0.4rem;
+    font-size: 1rem;
+    // margin: 0.4rem;
+    color: rgb(43, 43, 43);
 }
 
-/* .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
     color: #fff;
-    background-color: #bbbbbb;
-} */
+    background-color: #a90302;
+    border-radius: 0;
+    border-left: 3px solid #1b0000;
+} 
 
 .leftpanel {
-    height: 100%;
+    height: calc(100vh);
+}
+
+.dark-back {
+    background: #e7e7e7 url(assets/images/gray-cell.png) repeat;
+}
+.gray-back {
+    background: #e7e7e7 url(assets/images/light-gray-cell.png) repeat;
+}
+
+.logoitem {
+    background: #e7e7e7 url(assets/images/simatek-logo.png);
+}
+
+.card {
+    border-radius: 0;
+    max-width: 900px;
+}
+
+.card-body {
+    padding: 0;
 }

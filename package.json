@@ -20,7 +20,6 @@
     "@angular/platform-browser": "~7.0.0",
     "@angular/platform-browser-dynamic": "~7.0.0",
     "@angular/router": "~7.0.0",
-    "@ng-bootstrap/ng-bootstrap": "^4.0.1",
     "@ngrx/effects": "^7.0.0",
     "@ngrx/store": "^7.0.0",
     "@ngrx/store-devtools": "^7.0.0",

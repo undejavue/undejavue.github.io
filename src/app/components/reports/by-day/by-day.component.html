@@ -1,4 +1,12 @@
 <div *ngIf="data else spinner">
-  <div class="flex-row p-3 title">{{reportTitle}}</div>
+  <div class="d-flex flex-row justify-content-center filled">
+    <div>
+      {{'На дату:'}}
+    </div>
+    <div>&nbsp;</div>
+    <div>
+        {{updatedOn | date: 'dd/MM/yyyy'}}
+    </div>
+  </div>
   <app-report-table [dataset]="dataset" [headerRow]="headerRow"></app-report-table>
 </div>

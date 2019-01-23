@@ -1,20 +1,15 @@
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
-import { PollutionService } from '../../services/pollution.service';
+import { Component, OnInit } from '@angular/core';
 import { ConfigService } from '../../services/config.service';
-import { Store, select } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import { AppState } from '../../app.state';
 import { GetCurrentValuesAction } from '../../store/pollutions/actions';
 import { CreateConfigurationAction } from '../../store/configuration/actions';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { BaseComponent } from '../base-component';
 import { IDataModelItem } from '../models/data-model-item.interface';
-import { pipe } from 'rxjs';
 import { IMarker } from '../models/marker.interface';
 import { CurrentValuesDto } from '../../api/contracts/current-values/current-values.dto';
 import { MapHelperService } from '../../services/map.helper.service';
-import { ModalDialogService, SimpleModalComponent } from 'ngx-modal-dialog';
-import { FixtureModalComponent } from '../modal/fixture-modal/fixture-modal.component';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-main-layout',
@@ -37,8 +32,7 @@ export class MainLayoutComponent extends BaseComponent implements OnInit {
   constructor(private mapService: MapHelperService,
 
     private config: ConfigService,
-    private store: Store<AppState>,
-    private modalService: NgbModal) {
+    private store: Store<AppState>) {
     super(config);
     this.mapService.init();
   }

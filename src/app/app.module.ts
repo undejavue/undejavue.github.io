@@ -22,11 +22,10 @@ import { PollutionEffects } from './store/pollutions/effects';
 import { ReportsEffects } from './store/reports/effects';
 import { MapHelperService } from './services/map.helper.service';
 import { ModalDialogModule } from 'ngx-modal-dialog';
-import { FixtureModalComponent } from './components/modal/fixture-modal/fixture-modal.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ByDayComponent } from './components/reports/by-day/by-day.component';
 import { GroupByPipe } from './pipes/groupby.pipe';
 import { ReportTableComponent } from './components/reports/report-table/report-table.component';
+import { NavigationComponent } from './components/reports/navigation/navigation.component';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -37,6 +36,8 @@ const appRoutes: Routes = [
   { path: 'map', component: MainLayoutComponent },
   { path: 'reports/:id', component: ReportsComponent },
   { path: '', redirectTo: '/map', pathMatch: 'full' },
+  { path: 'reports-list', component: PageNotFoundComponent },
+  { path: 'reports-about', component: PageNotFoundComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
 
@@ -48,9 +49,9 @@ const appRoutes: Routes = [
     MapComponent,
     ReportsComponent,
     PageNotFoundComponent,
-    FixtureModalComponent,
     ByDayComponent,
-    ReportTableComponent
+    ReportTableComponent,
+    NavigationComponent
   ],
   imports: [
     HttpModule,
@@ -71,7 +72,6 @@ const appRoutes: Routes = [
       ReportsEffects
     ]),
     ModalDialogModule.forRoot(),
-    NgbModule
   ],
   providers: [
     { provide: ConfigService, useFactory: configServiceFactory },
@@ -82,7 +82,6 @@ const appRoutes: Routes = [
     GroupByPipe,
   ],
   entryComponents: [
-    FixtureModalComponent
   ],
   bootstrap: [AppComponent]
 })

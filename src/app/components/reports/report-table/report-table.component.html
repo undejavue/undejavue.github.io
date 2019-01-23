@@ -1,40 +1,18 @@
-<div *ngIf="headerRow" class="flex-row">
-    <div style="flex-basis: 15%">Дата</div>
-  <div *ngFor="let item of headerRow; let i=index" style="flex-basis: 15%">
-      
-      <div>{{item.id}}</div>
-  </div>
-</div>
-<div *ngFor="let row of dataset" class="flex-row">
-  <div style="flex-basis: 15%">{{row[0].timeStamp | date:'dd/MM/yyyy | HH:mm'}}</div>
-  <div *ngFor="let item of row; let i=index" style="flex-basis: 15%">
-    <div>{{item.value}}</div>
-  </div>
-</div>
-
 <table class="container">
-  <thead>
+  <thead *ngIf="headerRow">
     <tr>
       <th>
-        <h1>Sites</h1>
+        <div>Время</div>
       </th>
-      <th>
-        <h1>Views</h1>
-      </th>
-      <th>
-        <h1>Clicks</h1>
-      </th>
-      <th>
-        <h1>Average</h1>
+      <th *ngFor="let item of headerRow; let i=index">
+        <div>{{item.id.toUpperCase()}}</div>
       </th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>Google</td>
-      <td>9518</td>
-      <td>6369</td>
-      <td>01:32:50</td>
+    <tr *ngFor="let row of dataset">
+      <td>{{row[0].timeStamp | date:'HH:mm'}}</td>
+      <td *ngFor="let item of row; let i=index">{{item.value}}</td>
     </tr>
   </tbody>
 </table>

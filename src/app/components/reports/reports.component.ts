@@ -35,6 +35,7 @@ export class ReportsComponent extends BaseComponent implements OnInit {
     site: string,
     department: string
   };
+  reportTitle: string;
 
   constructor(private snapshot: ActivatedRoute,
     private service: PollutionService,
@@ -47,6 +48,8 @@ export class ReportsComponent extends BaseComponent implements OnInit {
 
   ngOnInit() {
 
+    this.reportTitle = 'Отчет по концентрациям за трололо';
+    
     this.snapshot.params.pipe()
       .subscribe(p => {
         this.reportId = p['id'];
