@@ -1,5 +1,5 @@
 <div *ngIf="data else spinner">
-  <div class="flex-row p-3 title">Выбросы загрязняющих веществ за выбранные сутки</div>
+  <div class="flex-row p-3 title">Концентрации загрязняющих веществ за сутки</div>
   <div *ngIf="headerRow" class="flex-row">
       <div style="flex-basis: 15%">Дата</div>
     <div *ngFor="let item of headerRow; let i=index" style="flex-basis: 15%">

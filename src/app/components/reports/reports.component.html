@@ -1,12 +1,9 @@
 <div *ngIf="!isPinner else spinner" class="app-reports">
-  <div class="flex-row justify-content-center header align-self-center">
-    <div *ngIf="reportInfo" class="title p-2 text-center">
+  <div class="flex-row justify-content-center header align-self-center text-center">
+    <div *ngIf="reportInfo" class="title p-2 ">
       {{reportInfo.title}}
     </div>
-    <div class="p-2 text-center">
-      <!-- {{'Отчеты по выбранному объекту и данные в реальном времени'}} -->
-    </div>
-    <a class="text-center" routerLink="/map">Назад</a>
+    <a class="" routerLink="/map">Назад</a>
   </div>
   <div *ngIf="report" class="content">
     <app-by-day [data]="report"></app-by-day>

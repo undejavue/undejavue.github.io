@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PollutionService } from '../../services/pollution.service';
 import { IDataModelItem } from '../models/data-model-item.interface';
 import { Store } from '@ngrx/store';
@@ -33,7 +33,8 @@ export class ReportsComponent extends BaseComponent implements OnInit {
   constructor(private snapshot: ActivatedRoute,
     private service: PollutionService,
     private store: Store<AppState>,
-    config: ConfigService) {
+    config: ConfigService,
+    private router: Router) {
     super(config);
   }
 
