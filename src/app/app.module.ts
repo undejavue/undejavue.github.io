@@ -1,9 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { AppRoutingModule } from './app-routing.module';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { AppComponent } from './app.component';
 import { ConfigService } from './services/config.service';
-import { MainLayoutComponent } from './components/main-layout/main-layout.component';
+import { MapLayoutComponent } from './components/map-layout/map-layout.component';
 import { MapComponent } from './components/map/map.component';
 import { PollutionService } from './services/pollution.service';
 import { HttpClientModule } from '@angular/common/http';
@@ -26,42 +25,57 @@ import { ByDayComponent } from './components/reports/by-day/by-day.component';
 import { GroupByPipe } from './pipes/groupby.pipe';
 import { ReportTableComponent } from './components/reports/report-table/report-table.component';
 import { NavigationComponent } from './components/reports/navigation/navigation.component';
+import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
+import { ContentLayoutComponent } from './components/layout/content-layout/content-layout.component';
+import { SidebarComponent } from './components/layout/sidebar/sidebar.component';
+import { ReportsListComponent } from './components/reports/reports-list/reports-list.component';
+import { ReportInfoComponent } from './components/reports/report-info/report-info.component';
+import { TitlebarComponent } from './components/layout/titlebar/titlebar.component';
+import { ReportsLayoutComponent } from './components/reports/reports-layout/reports-layout.component';
+import { ReportDetailsComponent } from './components/reports/report-details/report-details.component';
+import { appRoutes } from './app.routes';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
 }
 
+let hasRouterError = false;
+export function routerErrorHandler(error: any) {
+  console.log('RouterErrorHandler: ' + error);
+  hasRouterError = true;
+  throw error;
+}
 
-const appRoutes: Routes = [
-  { path: 'map', component: MainLayoutComponent },
-  { path: 'reports/:id', component: ReportsComponent },
-  { path: '', redirectTo: '/map', pathMatch: 'full' },
-  { path: 'reports-list', component: PageNotFoundComponent },
-  { path: 'reports-about', component: PageNotFoundComponent },
-  { path: '**', component: PageNotFoundComponent }
-];
-
+const routerModule: ModuleWithProviders = RouterModule.forRoot(appRoutes, {
+  initialNavigation: true,
+  errorHandler: routerErrorHandler,
+  enableTracing: true
+});
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainLayoutComponent,
+    MapLayoutComponent,
     MapComponent,
     ReportsComponent,
     PageNotFoundComponent,
     ByDayComponent,
     ReportTableComponent,
-    NavigationComponent
+    NavigationComponent,
+    MainLayoutComponent,
+    ContentLayoutComponent,
+    SidebarComponent,
+    ReportsListComponent,
+    ReportInfoComponent,
+    TitlebarComponent,
+    ReportsLayoutComponent,
+    ReportDetailsComponent
   ],
   imports: [
     HttpModule,
     HttpClientModule,
     BrowserModule,
-    AppRoutingModule,
-    RouterModule.forRoot(
-      appRoutes,
-      { enableTracing: false }
-    ),
+    routerModule,
     StoreModule.forRoot(reducers),
     StoreDevtoolsModule.instrument({
       maxAge: 5

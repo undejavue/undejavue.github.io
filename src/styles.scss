@@ -7,6 +7,23 @@ body {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
+@media print {
+    .no-print,
+    .no-print * {
+        display: none !important;
+    }
+    .print-height-auto {
+        height: auto !important;
+    }
+    .mainContainer {
+        height: auto !important;
+    }
+    html {
+        height: auto !important;
+        overflow: auto;
+    }
+}
+
 .ol-popup {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-size: 1rem;
@@ -133,7 +150,6 @@ body {
         @extend .datetime;
         font-weight: 600;
     }
-
 }
 
 a {
@@ -142,70 +158,10 @@ a {
     margin-right: auto;
 }
 
-.flex-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: baseline;
-}
-
-.flex-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.justify-content-start {
-  justify-content: flex-start;
-}
-
-.justify-content-around {
-    justify-content: around;
-}
-
-.justify-content-center {
-    justify-content: center;
-}
-
-.p-1 {
-    padding: 0.2rem;
-}
-
-.p-2 {
-    padding: 0.5rem;
-}
-
-.p-3 {
-    padding: 0.8rem;
-}
-
-.pl-1 {
-  padding-left: 0.5rem;
-}
-
-.pl-2 {
-  padding-left: 2rem;
-}
-
-.pl-3 {
-  padding-left: 3rem;
-}
-
-.pl-4 {
-  padding-left: 4rem;
-}
-
-.align-self-center {
-    align-items: center;
-}
-
 .text-center {
     margin-left: auto;
     margin-right: auto;
 }
-
-// tab selector
-/* Style the tab */
 
 .tab {
     overflow: hidden;

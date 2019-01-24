@@ -1,0 +1,14 @@
+<div class="leftpanel dark-back pl-4">
+  <div class="logo-holder ml-3 pb-3">
+    <div class="image-logo">
+      <a target="_blank" [href]="owner.site">
+        <img src="assets/images/simatek-logon.png" alt="avatar" class="profile-pic">
+      </a>
+    </div>
+    <div class="menu-title">{{owner.name}}</div>
+  </div>
+  <div *ngFor="let item of items" class="nav flex-column nav-pills">
+    <a class="nav-link" [ngClass]="{'active': isActive(item.id)}" [id]="item.id" data-toggle="pill" role="tab"
+      aria-controls="concentration-byday-tab" aria-selected="true" [routerLink]="item.routerLink" [queryParams]="item.queryParams">{{item.title}}</a>
+  </div>
+</div>

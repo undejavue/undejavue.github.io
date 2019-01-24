@@ -73,6 +73,26 @@ export const configurationReducer: Reducer<IConfigState> = (state: IConfigState 
                 }
             };
         }
+
+        case actions.CREATE_NAVIGATION_ACTION: {
+            return {
+                ...state,
+                navigation: {
+                    ...state.navigation,
+                    items: action.payload
+                }
+            };
+        }
+
+        case actions.NAVIGATION_SET_ACTIVE: {
+            return {
+                ...state,
+                navigation: {
+                    ...state.navigation,
+                    activeId: action.activeId
+                }
+            };
+        }
     }
 
     return state;

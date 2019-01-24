@@ -1,14 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
 import { PollutionTypeEnum } from '../../../api/contracts/reports/pollution-type.enum';
 import { ReportPeriodEnum } from '../../../api/contracts/reports/report-period.enum';
+import { ActivatedRoute } from '@angular/router';
 
-export interface INavItem {
-  routerLink: string[];
-  queryParams: {};
-  id: string;
-  title: string;
-}
 
 @Component({
   selector: 'app-navigation',
@@ -18,7 +12,7 @@ export interface INavItem {
 export class NavigationComponent implements OnInit {
   @Input() reportId: string;
 
-  items: INavItem[];
+  // items: INavItem[];
   type: any;
   period: any;
 
@@ -28,7 +22,7 @@ export class NavigationComponent implements OnInit {
     this.type = PollutionTypeEnum.Concentration;
     this.period = ReportPeriodEnum.ByDay;
 
-    this.items = [
+   /*  this.items = [
       {
         routerLink: ['/map'],
         queryParams: {},
@@ -78,8 +72,8 @@ export class NavigationComponent implements OnInit {
       if (params && params['type'] && params['period']) {
         this.type = params['type'] ;
         this.period = params['period'];
-      } 
-    });
+      }
+    }); */
 
   }
 

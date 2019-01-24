@@ -12,11 +12,11 @@ import { CurrentValuesDto } from '../../api/contracts/current-values/current-val
 import { MapHelperService } from '../../services/map.helper.service';
 
 @Component({
-  selector: 'app-main-layout',
-  templateUrl: './main-layout.component.html',
-  styleUrls: ['./main-layout.component.scss']
+  selector: 'app-map-layout',
+  templateUrl: './map-layout.component.html',
+  styleUrls: ['./map-layout.component.scss']
 })
-export class MainLayoutComponent extends BaseComponent implements OnInit {
+export class MapLayoutComponent extends BaseComponent implements OnInit {
   isReady = false;
   owner: {
     name: string,
