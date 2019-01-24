@@ -1,7 +1,0 @@
-<div *ngFor="let item of items" class="nav flex-column nav-pills">
-<a class="nav-link" [ngClass]="{'active': isActive(item.id)}" [id]="item.id" 
-    data-toggle="pill" role="tab" 
-    aria-controls="concentration-byday-tab"
-    aria-selected="true"
-    [routerLink]="item.routerLink" [queryParams]="item.queryParams">{{item.title}}</a>
-</div>

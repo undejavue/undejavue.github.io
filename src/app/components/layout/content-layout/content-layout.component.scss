@@ -3,8 +3,8 @@
 }
 
 .content{
-    overflow-y: hidden;
-    height: calc(100vh - 30px);
+    overflow-y: auto;
+    height: calc(100vh - 100px);
 }
 
 .header {

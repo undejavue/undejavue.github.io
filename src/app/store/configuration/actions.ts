@@ -2,6 +2,7 @@ import { Action } from '@ngrx/store';
 import { IDataModelItem } from '../../components/models/data-model-item.interface';
 import { IMarker } from '../../components/models/marker.interface';
 import { INavItem } from '../../components/layout/sidebar/sidebar.component';
+import { NavigationTabs } from '../../config/navigation.config';
 
 export const CREATE_CONFIGURATION_ACTION = 'create-configuration-action';
 export const CREATE_CONFIGURATION_ACTION_SUCCESS = 'create-configuration-action-success';
@@ -49,7 +50,7 @@ export class CreateNavigationAction implements Action {
 
 export class SetNavigationActiveId implements Action {
     readonly type = NAVIGATION_SET_ACTIVE;
-    constructor(public activeId: string) {}
+    constructor(public activeId: NavigationTabs) {}
 }
 
 export type All = CreateConfigurationAction

@@ -7,8 +7,7 @@ import { MapComponent } from './components/map/map.component';
 import { PollutionService } from './services/pollution.service';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
-import { ReportsComponent } from './components/reports/reports.component';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { WebApiClient } from './api/web-api-client';
 import { WebApiService } from './services/webapi.service';
@@ -21,10 +20,8 @@ import { PollutionEffects } from './store/pollutions/effects';
 import { ReportsEffects } from './store/reports/effects';
 import { MapHelperService } from './services/map.helper.service';
 import { ModalDialogModule } from 'ngx-modal-dialog';
-import { ByDayComponent } from './components/reports/by-day/by-day.component';
 import { GroupByPipe } from './pipes/groupby.pipe';
 import { ReportTableComponent } from './components/reports/report-table/report-table.component';
-import { NavigationComponent } from './components/reports/navigation/navigation.component';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
 import { ContentLayoutComponent } from './components/layout/content-layout/content-layout.component';
 import { SidebarComponent } from './components/layout/sidebar/sidebar.component';
@@ -34,6 +31,7 @@ import { TitlebarComponent } from './components/layout/titlebar/titlebar.compone
 import { ReportsLayoutComponent } from './components/reports/reports-layout/reports-layout.component';
 import { ReportDetailsComponent } from './components/reports/report-details/report-details.component';
 import { appRoutes } from './app.routes';
+import { ReportsTitlebarComponent } from './components/reports/titlebar/reports-titlebar.component';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -57,11 +55,8 @@ const routerModule: ModuleWithProviders = RouterModule.forRoot(appRoutes, {
     AppComponent,
     MapLayoutComponent,
     MapComponent,
-    ReportsComponent,
     PageNotFoundComponent,
-    ByDayComponent,
     ReportTableComponent,
-    NavigationComponent,
     MainLayoutComponent,
     ContentLayoutComponent,
     SidebarComponent,
@@ -69,7 +64,8 @@ const routerModule: ModuleWithProviders = RouterModule.forRoot(appRoutes, {
     ReportInfoComponent,
     TitlebarComponent,
     ReportsLayoutComponent,
-    ReportDetailsComponent
+    ReportDetailsComponent,
+    ReportsTitlebarComponent
   ],
   imports: [
     HttpModule,

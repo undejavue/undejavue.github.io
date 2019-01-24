@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from './app.state';
 import { CreateNavigationAction } from './store/configuration/actions';
 import { Router } from '@angular/router';
+import { NavigationTabs, navigationItems } from './config/navigation.config';
 
 @Component({
   selector: 'app-root',
@@ -21,20 +22,7 @@ export class AppComponent implements OnInit {
 
     // this.router.initialNavigation();
 
-    const navItems = [
-      {
-        routerLink: ['/map'],
-        queryParams: {},
-        id: 'map',
-        title: 'Интерактивная карта'
-      },
-      {
-        routerLink: ['/reports/list'],
-        queryParams: {},
-        id: 'reports-list',
-        title: 'Список объектов'
-      }
-    ];
+    const navItems = navigationItems();
 
     this.store.dispatch(new CreateNavigationAction(navItems));
 

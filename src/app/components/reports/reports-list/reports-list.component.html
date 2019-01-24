@@ -1,3 +1,16 @@
-<p>
-  reports-list works!
-</p>
+<div class="card">
+  <div class="card-header">
+    {{owner.department}}
+  </div>
+  <div class="card-body p-4">
+    <div *ngIf="items" class="d-flex flex-column align-items.start">
+      <div *ngFor="let item of items">
+        <a class="nav-link report-list-item" 
+          [id]="item.id"
+          [routerLink]="['/report/details', item.id]">
+        {{item.title}}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

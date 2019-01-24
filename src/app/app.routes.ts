@@ -25,7 +25,12 @@ export const appRoutes: Routes = [
         component: MapLayoutComponent
     },
     {
-        path: 'report',
+        path: 'reports',
+        redirectTo: '/reports/list',
+        pathMatch: 'full'
+    },
+    {
+        path: 'report/details/:id',
         component: MainLayoutComponent,
         children: [
             {
@@ -44,12 +49,37 @@ export const appRoutes: Routes = [
                         outlet: 'principal',
                         children: [
                             {
-                                path: 'details/:id',
+                                path: '',
                                 component: ReportDetailsComponent,
                                 outlet: 'content'
-                            },
+                            }
+                        ]
+                    },
+                ]
+            }
+        ]
+    },
+    {
+        path: 'report/info/:id',
+        component: MainLayoutComponent,
+        children: [
+            {
+                path: '',
+                component: ContentLayoutComponent,
+                outlet: 'main',
+                children: [
+                    {
+                        path: '',
+                        component: TitlebarComponent,
+                        outlet: 'header'
+                    },
+                    {
+                        path: '',
+                        component: ReportsLayoutComponent,
+                        outlet: 'principal',
+                        children: [
                             {
-                                path: 'info/:id',
+                                path: '',
                                 component: ReportInfoComponent,
                                 outlet: 'content'
                             }
@@ -57,8 +87,7 @@ export const appRoutes: Routes = [
                     },
                 ]
             }
-        ],
-        canActivate: [LoggedInGuard]
+        ]
     },
     {
         path: 'reports/list',

@@ -4,7 +4,7 @@ import { ConfigService } from '../services/config.service';
 
 export class BaseComponent implements OnInit, OnDestroy {
     protected destroy = new Subject();
-    protected isLog = false;
+    isLog = false;
 
     constructor(config: ConfigService) {
         this.isLog = config.isDebug();

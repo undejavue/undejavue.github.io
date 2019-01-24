@@ -1,0 +1,28 @@
+.subtitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 0.5rem 0;
+}
+.info-block {
+    line-height: 1;
+}
+.description {
+    font-size: 1rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+.function {
+    @extend .description;
+    font-size: 1rem;
+    margin: 0.4rem 0 0 0;
+}
+.info-item {
+    font-size: 1rem;
+}
+.info-items {
+    padding: 0 1rem 0 1.5rem;
+}
+.address {
+    font-size: 0.8rem;
+    font-weight: normal;
+}

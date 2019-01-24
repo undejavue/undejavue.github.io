@@ -1,10 +1,14 @@
 .nav-pills .nav-link {
-    border-radius: 0.25rem;
+    border-radius: 0;
     width: 100%;
     opacity: 0.8;
     font-size: 1rem;
     // margin: 0.4rem;
     color: rgb(43, 43, 43);
+    &:hover {
+        background: rgba(81, 80, 80, 0.4);
+        color: white;
+    }
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
@@ -13,10 +17,6 @@
     border-radius: 0;
     border-left: 3px solid #1b0000;
 } 
-
-.leftpanel {
-    height: calc(100vh);
-}
 
 .dark-back {
     background: #e7e7e7 url(assets/images/gray-cell.png) repeat;
@@ -31,9 +31,11 @@
 
 .card {
     border-radius: 0;
-    max-width: 900px;
+    max-width: 1000px;
 }
 
 .card-body {
     padding: 0;
+    overflow: auto;
+    min-height: 40rem;
 }

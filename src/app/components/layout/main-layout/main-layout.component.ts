@@ -14,8 +14,6 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit(): void {
 
-    debugger;
-
     this.route.url.subscribe(segments => {
       this.page = segments.join('');
     });

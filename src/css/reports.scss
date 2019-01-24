@@ -1,8 +1,5 @@
-@charset "UTF-8";
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
-
 .app-reports {
-    font-family: 'Open Sans', sans-serif;
+    
     font-weight: 300;
     line-height: 1.42em;
     
@@ -56,17 +53,6 @@
       transform: translateY(1px);
       transition: all 400ms ease;
   }
-}
-
-.profile-pic {
-    display: inline;
-    margin: 0 auto;
-    width: 100%;
-    height: auto;
-}
-
-.logo-holder {
-    border-bottom: 1px solid rgb(192, 192, 192);
 }
 
 .page-title {
