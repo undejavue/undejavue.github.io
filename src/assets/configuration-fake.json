@@ -1,10 +1,10 @@
 {
     "appName": "Environmental Pollution, Belarus",
     "owner": {
-        "name": "\"ООО Симатек Энерго\"",
-        "site": "http://simatek.by",
-        "title": "Экологическая обстановка в РБ",
-        "department": "Департамент экологического мониторинга"
+        "name": "Company name",
+        "site": "http://wwww",
+        "title": "Web project title trololo ololo",
+        "department": "Department of lorem ipsum dolor sit amet"
     },
     "apiKey": "AIzaSyBV5qei-V2AZuT6we5iNgO22aG2h8zWj-E",
     "enableDebug": true,
