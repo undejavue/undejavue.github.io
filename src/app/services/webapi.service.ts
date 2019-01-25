@@ -32,12 +32,12 @@ export class WebApiService {
 
     getReport(objectId: string, type: PollutionTypeEnum, period: ReportPeriodEnum) {
         const url = this.webApis[objectId];
-        /* if ( url) {
+        if ( url) {
             return this.apiClient.getReport(url, type, period);
         } else {
             of(new ReportDto());
-        } */
-        return this.apiClient.getReportDev(url, type, period);
+        }
+        // return this.apiClient.getReportDev(url, type, period);
     }
 
     getDataObjects() {

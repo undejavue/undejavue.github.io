@@ -7,6 +7,7 @@ import { SetNavigationActiveId, CreateNavigationAction } from '../../../store/co
 import { NavigationTabs, navigationItems } from '../../../config/navigation.config';
 import { GetReportsInfoAction } from '../../../store/reports/actions';
 import { takeUntil } from 'rxjs/operators';
+import { IOwner } from '../../models/owner.model';
 
 @Component({
   selector: 'app-reports-list',
@@ -18,15 +19,12 @@ export class ReportsListComponent extends BaseComponent implements OnInit {
 
   items: any[];
   isSpinner: boolean;
-  owner: {
-    name: string,
-    title: string,
-    site: string,
-    department: string
-  };
+  webApis: {};
+  owner: IOwner;
   constructor(config: ConfigService, private store: Store<AppState>) {
     super(config);
     this.owner = config.get('owner');
+    this.webApis = config.get('webApiUrls');
   }
 
   ngOnInit() {
@@ -41,6 +39,9 @@ export class ReportsListComponent extends BaseComponent implements OnInit {
         this.isSpinner = info.loading;
         if (!info.loading && info.items) {
           this.items = info.items;
+          this.items.forEach(item => {
+            item['approved'] = this.webApis[item.id] !== undefined;
+          });
         }
       });
   }

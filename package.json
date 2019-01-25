@@ -36,6 +36,7 @@
     "ol-popup": "^4.0.0",
     "reselect": "^4.0.0",
     "rxjs": "~6.3.3",
+    "spinner-angular": "^2.0.6",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {

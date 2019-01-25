@@ -12,7 +12,7 @@ const getTemplate = (data: IDataModelItem,
     info: string) => `
 <div class="popup-content">
 <div class="header">
-    <div class="flex-row justify-content-start align-self-center">
+    <div class="d-flex flex-row justify-content-start align-self-center">
         <div class="info-image">
             <img src="${data.information.imgUrl}" alt="" class="profile-pic">
         </div>
@@ -49,8 +49,8 @@ ${getDateString(data.datetime)}
 </div></div></div>
 
 <div id="objreports" class="tabcontent" style="background: white;">
-<div class="flex-row">
-    <a href="reports/${data.id}">Отчеты по объекту</a>
+<div class="d-flex flex-row">
+    <a href="report/details/${data.id}">Отчеты по объекту</a>
 </div>
 </div></div></div>`;
 
@@ -77,7 +77,7 @@ const getInfo = (info: IObjectInfo): string => {
 };
 
 const getDateString = (date: string) => {
-    return `<div class="flex-row"><div class="datetime">Обновлено: </div><div class="datetime-value">${date}</div></div>`;
+    return `<div class="d-flex flex-row"><div class="datetime">Обновлено: </div><div class="datetime-value">${date}</div></div>`;
 };
 
 export const getPopupWindow = (data: IDataModelItem, options: any) => {

@@ -3,13 +3,13 @@
     font-weight: bold;
     font-size: 1.2em;
     text-align: left;
-    color: #9fc9dd;
+    color: #1f1f1f;
     margin: 0;
 }
 
 .container td {
     font-weight: normal;
-    font-size: 1em;
+    font-size: 0.8em;
     // -webkit-box-shadow: 0 2px 2px -2px #0E1119;
     // -moz-box-shadow: 0 2px 2px -2px #0E1119;
     // box-shadow: 0 2px 2px -2px #0E1119;
@@ -38,15 +38,15 @@
 /* Background-color of the even rows */
 
 .container tr:nth-child(even) {
-    background-color: rgb(192, 200, 216);
+    background-color: #f6f6f6;
 }
 
 .container th {
-    background-color: rgb(56, 59, 65);
+    background-color: #acacac;
 }
 
 .container td:first-child {
-    color: #FB667A;
+
 }
 
 .container tr:hover {

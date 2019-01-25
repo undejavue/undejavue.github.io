@@ -34,7 +34,7 @@ body {
     border-radius: 4px; // padding: 1rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     opacity: 0.85;
-    max-width: 393px;
+    max-width: 412px;
 }
 
 .ol-popup-closer {
@@ -288,4 +288,19 @@ tr:nth-child(even) {
     color: transparent;
     background: transparent;
     padding: 1rem;
+}
+
+.component-spinner {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(250, 250, 250, 0.3);
+    .spinner-block-wrapper {
+        top: calc(50% - 20px);
+        left: calc(50% - 20px);
+        position: absolute;
+    }
+    z-index: 999999;
 }

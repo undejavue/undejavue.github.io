@@ -1,18 +1,32 @@
-<table class="container">
-  <thead *ngIf="headerRow">
-    <tr>
-      <th>
-        <div>Время</div>
-      </th>
-      <th *ngFor="let item of headerRow; let i=index">
-        <div>{{item.id.toUpperCase()}}</div>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let row of dataset">
-      <td>{{row[0].timeStamp | date:'HH:mm'}}</td>
-      <td *ngFor="let item of row; let i=index">{{item.value}}</td>
-    </tr>
-  </tbody>
-</table>
+<div *ngIf="underConstruct">
+  <div class="p-4 m-4">
+    Данный раздел находится в разработке
+  </div>
+</div>
+
+<div *ngIf="!isSpinner else spinner">
+  <table class="container">
+    <thead *ngIf="headerRow">
+      <tr>
+        <th>
+          <div>Время</div>
+        </th>
+        <th *ngFor="let item of headerRow; let i=index">
+          <div>{{item.id.toUpperCase()}}</div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of dataset">
+        <td>{{row[0].timeStamp | date:'HH:mm'}}</td>
+        <td *ngFor="let item of row; let i=index">{{item.value}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #spinner>
+  <div class="component-spinner">
+    <spinner color="gray" [size]="40"></spinner>
+  </div>
+</ng-template>

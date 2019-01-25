@@ -32,6 +32,7 @@ import { ReportsLayoutComponent } from './components/reports/reports-layout/repo
 import { ReportDetailsComponent } from './components/reports/report-details/report-details.component';
 import { appRoutes } from './app.routes';
 import { ReportsTitlebarComponent } from './components/reports/titlebar/reports-titlebar.component';
+import { SpinnerModule } from 'spinner-angular';
 
 export function configServiceFactory() {
   return new ConfigService(window['tempConfigStorage']);
@@ -82,6 +83,7 @@ const routerModule: ModuleWithProviders = RouterModule.forRoot(appRoutes, {
       ReportsEffects
     ]),
     ModalDialogModule.forRoot(),
+    SpinnerModule.forRoot({}),
   ],
   providers: [
     { provide: ConfigService, useFactory: configServiceFactory },

@@ -1,14 +1,15 @@
 <div class="card">
   <div class="card-header">
-    {{owner.department}}
+    <div class="pt-3 pb-2">Список объектов мониториинга</div>
   </div>
   <div class="card-body p-4">
     <div *ngIf="items" class="d-flex flex-column align-items.start">
       <div *ngFor="let item of items">
         <a class="nav-link report-list-item" 
+          [ngClass]="{'approved': item.approved}"
           [id]="item.id"
           [routerLink]="['/report/details', item.id]">
-        {{item.title}}
+          {{item.title}}
         </a>
       </div>
     </div>

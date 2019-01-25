@@ -36,15 +36,24 @@ export class ReportTableComponent extends BaseComponent implements OnInit {
     id: ''
   };
   isSpinner: boolean;
+  webApis: {};
+  underConstruct: boolean;
   constructor(
     private snapshot: ActivatedRoute,
     config: ConfigService,
     private store: Store<AppState>,
     protected groupby: GroupByPipe) {
     super(config);
+    this.webApis = config.get('webApiUrls');
   }
 
   ngOnInit() {
+
+    if (!this.webApis[this.reportId]) {
+      this.underConstruct = true;
+      this.isSpinner = false;
+      return;
+    }
 
     this.snapshot.queryParams.pipe()
       .subscribe(params => {

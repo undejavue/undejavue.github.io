@@ -6,8 +6,8 @@ export const getReportTitle = (type: PollutionTypeEnum, period: ReportPeriodEnum
     let p = '';
     switch (period) {
         case ReportPeriodEnum.ByDay: p = 'выбранные сутки'; break;
-        case ReportPeriodEnum.ByDay: p = 'месяц'; break;
-        case ReportPeriodEnum.ByDay: p = 'год'; break;
+        case ReportPeriodEnum.ByMonth: p = 'месяц'; break;
+        case ReportPeriodEnum.ByYear: p = 'год'; break;
     }
     return `${t} загрязняющих веществ за ${p}`;
 };

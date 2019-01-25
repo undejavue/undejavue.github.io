@@ -25,6 +25,7 @@ export class ReportsTitlebarComponent extends BaseComponent implements OnInit {
   reportTitle: string;
   type: PollutionTypeEnum;
   period: ReportPeriodEnum;
+  today: Date;
 
   constructor(private snapshot: ActivatedRoute,
     private store: Store<AppState>,
@@ -34,6 +35,7 @@ export class ReportsTitlebarComponent extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.today = new Date();
     this.snapshot.queryParams.pipe()
     .subscribe(params => {
       this.type = params['type'] || PollutionTypeEnum.Concentration;

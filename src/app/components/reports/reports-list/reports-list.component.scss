@@ -6,7 +6,13 @@
         font-weight: bold;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
         transition: all 400ms ease;
-        background: rgba(255, 255, 255, 0.9);
+        transform: translateY(-3px);
+        // background: rgba(255, 255, 255, 0.9);
         // border: 1px solid whitesmoke;
     }
+}
+
+.approved {
+    background: #e1ffe6;
+    font-weight: 500;
 }
