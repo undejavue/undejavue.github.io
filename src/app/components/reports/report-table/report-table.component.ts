@@ -12,6 +12,7 @@ import { PollutionTypeEnum } from '../../../api/contracts/reports/pollution-type
 import { ReportPeriodEnum } from '../../../api/contracts/reports/report-period.enum';
 import { GetReportAction } from '../../../store/reports/actions';
 import { takeUntil } from 'rxjs/operators';
+import { IReportModel } from '../../../store/reports/state';
 
 export interface ISelectedReport {
   type: PollutionTypeEnum;
@@ -26,18 +27,18 @@ export interface ISelectedReport {
 })
 export class ReportTableComponent extends BaseComponent implements OnInit {
   @Input() reportId;
-  report: ReportDto;
-  dataset = [];
-  headerRow: any;
-  updatedOn: any;
+  report: IReportModel;
+
   selectedReport: ISelectedReport = {
     type: PollutionTypeEnum.Concentration,
     period: ReportPeriodEnum.ByDay,
     id: ''
   };
+
   isSpinner: boolean;
   webApis: {};
   underConstruct: boolean;
+  noDataFromApi: boolean;
   constructor(
     private snapshot: ActivatedRoute,
     config: ConfigService,
@@ -57,6 +58,7 @@ export class ReportTableComponent extends BaseComponent implements OnInit {
 
     this.snapshot.queryParams.pipe()
       .subscribe(params => {
+        this.noDataFromApi = false;
         this.selectedReport.type = params['type'] || PollutionTypeEnum.Concentration;
         this.selectedReport.period = params['period'] || ReportPeriodEnum.ByDay;
         this.selectedReport.id = this.reportId;
@@ -71,31 +73,39 @@ export class ReportTableComponent extends BaseComponent implements OnInit {
 
     this.store.select(s => s.reports.data)
       .pipe(takeUntil(this.destroy))
-      .subscribe(data => {
-        this.isSpinner = data.loading;
-        if (!data.loading && data.byObjectId) {
-          this.report = data.byObjectId[this.reportId];
-          if (this.report) {
-            this.transformReportData(this.report);
-          }
-        }
+      .subscribe(s => {
+        this.isSpinner = s.loading;
+        const dto = s.byId[this.reportId];
+        this.report = this.transformReportData(dto);
+
       });
-
-
   }
 
+
   transformReportData(source: ReportDto) {
+    if (!source || !source.datasets) {
+      this.noDataFromApi = true;
+      return undefined;
+    }
+
+    const result: IReportModel = {
+      datasets: [],
+      headerRow: [],
+      updatedOn: ''
+    };
     const mapped = [];
     source.datasets.map(d => d.items.map(item => mapped.push(item)));
-    // mapped = mapped.concat(this.data.datasets.map(d => d.items));
     const grouped = this.groupby.transform(mapped, 'timeStamp');
 
     Object.keys(grouped).forEach(key => {
-      this.dataset.push(grouped[key]);
+      result.datasets.push(grouped[key]);
     });
-    if (this.dataset && this.dataset.length > 0) {
-      this.headerRow = this.dataset[0];
-      this.updatedOn = this.dataset[0][0].timeStamp;
+
+    if (result.datasets.length > 0) {
+      result.headerRow = result.datasets[0];
+      result.updatedOn = result.datasets[0][0].timeStamp;
     }
+
+    return result;
   }
 }

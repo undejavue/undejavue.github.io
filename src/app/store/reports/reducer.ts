@@ -1,6 +1,7 @@
 import { IReportState } from './state';
 import { Reducer } from '../../app.state';
 import * as actions from './actions';
+import { ReportPeriodEnum } from '../../api/contracts/reports/report-period.enum';
 
 type Action = actions.All;
 
@@ -8,10 +9,13 @@ export const reportsReducer: Reducer<IReportState> = (state: IReportState = new 
 
     switch (action.type) {
         case actions.GET_REPORT_ACTION: {
+            const byId = { ...state.data.byId };
+            byId[action.objectId] = null;
             return {
                 ...state,
                 data: {
                     ...state.data,
+                    byId,
                     loading: true,
                     error: false
                 }
@@ -19,13 +23,16 @@ export const reportsReducer: Reducer<IReportState> = (state: IReportState = new 
         }
 
         case actions.GET_REPORT_ACTION_SUCCESS: {
+            const byId = { ...state.data.byId };
+            const id = action.objectId;
+            const dto = action.payload;
+            byId[id] = dto;
+
             return {
                 ...state,
                 data: {
                     ...state.data,
-                    byObjectId: {
-                        [action.objectId]: action.payload
-                    },
+                    byId,
                     loading: false,
                     error: false
                 }

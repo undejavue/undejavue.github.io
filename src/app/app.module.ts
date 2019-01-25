@@ -48,7 +48,7 @@ export function routerErrorHandler(error: any) {
 const routerModule: ModuleWithProviders = RouterModule.forRoot(appRoutes, {
   initialNavigation: true,
   errorHandler: routerErrorHandler,
-  enableTracing: true
+  enableTracing: false
 });
 
 @NgModule({

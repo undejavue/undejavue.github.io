@@ -5,19 +5,19 @@
 </div>
 
 <div *ngIf="!isSpinner else spinner">
-  <table class="container">
-    <thead *ngIf="headerRow">
+  <table *ngIf="report" class="container">
+    <thead *ngIf="report.headerRow">
       <tr>
         <th>
           <div>Время</div>
         </th>
-        <th *ngFor="let item of headerRow; let i=index">
+        <th *ngFor="let item of report.headerRow; let i=index">
           <div>{{item.id.toUpperCase()}}</div>
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of dataset">
+      <tr *ngFor="let row of report.datasets">
         <td>{{row[0].timeStamp | date:'HH:mm'}}</td>
         <td *ngFor="let item of row; let i=index">{{item.value}}</td>
       </tr>

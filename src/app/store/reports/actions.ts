@@ -18,7 +18,9 @@ export class GetReportAction implements Action {
 
 export class GetReportActionSuccess implements Action {
     readonly type = GET_REPORT_ACTION_SUCCESS;
-    constructor(public payload: any, public objectId: string) { }
+    constructor(public payload: any,
+        public objectId: string,
+        public period: ReportPeriodEnum) { }
 }
 
 export class GetReportActionError implements Action {

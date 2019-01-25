@@ -1,7 +1,7 @@
 <div class="row">
     <div class="">
       <div class="flex-row justify-content-start align-self-center menu">
-        <div class="p-3 flex-column">
+        <div *ngIf="reportInfo" class="p-3 flex-column">
           <h4>{{reportInfo.title}}</h4>
           <div class="row pl-3">
             <div class="report-name">{{reportTitle}}</div>

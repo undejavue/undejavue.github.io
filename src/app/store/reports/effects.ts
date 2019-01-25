@@ -30,7 +30,12 @@ export class ReportsEffects {
         ofType<actions.GetReportAction>(actions.GET_REPORT_ACTION),
         switchMap(action => this.service.getReport(action.objectId, action.pollution, action.period)
             .pipe(
-                switchMap(result => of(new actions.GetReportActionSuccess(result, action.objectId))),
+                switchMap(result => {
+                    if (!result.datasets) {
+                        alert('No data from Api for this report type!');
+                    }
+                    return of(new actions.GetReportActionSuccess(result, action.objectId, action.period));
+                }),
                 catchError(error => of(new actions.GetReportActionError(error)))
             )
         ),

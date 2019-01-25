@@ -7,13 +7,15 @@ export class IReportState {
     info: IReportInfoStore;
 
     constructor() {
-        this.data = {
-            byObjectId: {
-
-            }
-        };
+        this.data = { byId: {} };
         this.info = { items: [] };
     }
+}
+
+export interface IReportModel {
+    datasets: any[];
+    headerRow: string[];
+    updatedOn: any;
 }
 
 export interface IReportInfoStore extends IDataStore {
@@ -21,7 +23,7 @@ export interface IReportInfoStore extends IDataStore {
 }
 
 export interface IReportStore extends IDataStore {
-    byObjectId: {
-        [id: string]: ReportDto
+    byId: {
+        [id: string]: ReportDto;
     };
 }
