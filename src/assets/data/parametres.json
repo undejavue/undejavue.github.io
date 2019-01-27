@@ -55,6 +55,7 @@
     ],
     "defaults": {
         "conc": "мг/нм3",
-        "emission": "г/с"
+        "emission": "г/с",
+        "flow": ""
     }
 }

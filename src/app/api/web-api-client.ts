@@ -39,7 +39,7 @@ export class WebApiClient {
     }
 
     getParametres() {
-        return this.http.get('assets/data/parametres.json', { headers: this.headers }).pipe(switchMap(r => this.blobToText(r)));
+        return this.get('assets/data/parametres.json');
     }
 
     getReportDev(baseUrl: string, type: PollutionTypeEnum, period: ReportPeriodEnum): Observable<any | null> {

@@ -9,16 +9,19 @@
     <thead *ngIf="report.headerRow">
       <tr>
         <th>
-          <div>Время</div>
+          <div>{{isYear ? 'Месяц' : 'Время'}}</div>
         </th>
         <th *ngFor="let item of report.headerRow; let i=index">
-          <div>{{item.id.toUpperCase()}}</div>
+          <div>{{item}}</div>
         </th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let row of report.datasets">
-        <td>{{row[0].timeStamp | date:'HH:mm'}}</td>
+        <td *ngIf="!isYear else byMonth">{{row[0].timeStamp | date:'HH:mm'}}</td>
+        <ng-template #byMonth>
+          <td >{{getMonth(row[0].timeStamp)}}</td>
+        </ng-template>
         <td *ngFor="let item of row; let i=index">{{item.value}}</td>
       </tr>
     </tbody>

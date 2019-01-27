@@ -44,6 +44,10 @@ export class WebApiService {
         return this.apiClient.getObjectsInfo();
     }
 
+    getParametres() {
+        return this.apiClient.getParametres();
+    }
+
 }
 
 
