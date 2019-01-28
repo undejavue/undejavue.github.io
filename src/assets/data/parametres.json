@@ -55,7 +55,10 @@
     ],
     "defaults": {
         "conc": "мг/нм3",
+        "concentration": "мг/нм3",
         "emission": "г/с",
-        "flow": ""
+        "flow": "м3/ч",
+        "year": "т",
+        "percent": "%"
     }
 }

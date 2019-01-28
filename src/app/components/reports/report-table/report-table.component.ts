@@ -42,8 +42,8 @@ export class ReportTableComponent extends BaseComponent implements OnInit {
   webApis: {};
   underConstruct: boolean;
   noDataFromApi: boolean;
-  parametres: any[];
-  defaults: any[];
+  parametres: {};
+  defaults: {};
   constructor(
     private snapshot: ActivatedRoute,
     config: ConfigService,
@@ -120,7 +120,7 @@ export class ReportTableComponent extends BaseComponent implements OnInit {
     });
 
     if (result.datasets.length > 0) {
-      result.headerRow = result.datasets[0].map(item => toCamelCase(item.id));
+      result.headerRow = result.datasets[0].map(item => toCamelCase(item.id) + ', ' + this.getDimension(item.id));
       result.updatedOn = result.datasets[0][0].timeStamp;
     }
 
@@ -152,7 +152,7 @@ export class ReportTableComponent extends BaseComponent implements OnInit {
     });
 
     if (result.datasets.length > 0) {
-      result.headerRow = result.datasets[0].map(item => toCamelCase(item.id) + ', т');
+      result.headerRow = result.datasets[0].map(item => toCamelCase(item.id) + ', ' + this.getDimension(item.id));
       result.updatedOn = new Date(result.datasets[0][0].timeStamp);
     }
 
@@ -161,5 +161,29 @@ export class ReportTableComponent extends BaseComponent implements OnInit {
 
   getMonth(date) {
     return getMonth(date);
+  }
+
+  getDimension(paramId: string) {
+
+    if (!this.defaults) { return ''; }
+
+    if (this.selectedReport.period === ReportPeriodEnum.ByYear) {
+      return this.defaults['year'];
+    }
+
+    switch (paramId.toLowerCase()) {
+      case 'o2': return this.defaults['percent'];
+      case 'flow': return this.defaults['flow'];
+      default:
+
+        if (this.selectedReport.type === PollutionTypeEnum.Concentration) {
+          return this.defaults['conc'];
+        } else if (this.selectedReport.type === PollutionTypeEnum.Emission) {
+          return this.defaults['emission'];
+        }
+    }
+
+    return '';
+
   }
 }

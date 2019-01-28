@@ -2,7 +2,7 @@
     border-radius: 0;
     width: 100%;
     opacity: 0.8;
-    font-size: 1rem;
+    font-size: 0.8rem;
     // margin: 0.4rem;
     color: rgb(43, 43, 43);
     &:hover {
@@ -38,5 +38,5 @@
 .card-body {
     padding: 0;
     overflow: auto;
-    min-height: 40rem;
+    min-height: 30rem;
 }
