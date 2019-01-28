@@ -1,12 +1,16 @@
-<div class="leftpanel ">
-  <div class="logo-holder ml-3 pb-3">
-    <div class="image-logo">
-      <a target="_blank" [href]="owner.site">
-        <img src="assets/images/simatek-logo.png" alt="avatar" class="profile-pic">
-      </a>
+<div class="leftpanel">
+  <div class="d-flex flex-row align-items-start">
+    <div class="logo-holder ml-3 pb-3">
+      <div class="image-logo">
+        <a target="_blank" [href]="owner.site">
+          <img src="assets/images/simatek-logo.png" alt="avatar" class="profile-pic">
+        </a>
+      </div>
+      <div class="menu-title">{{owner.name}}</div>
     </div>
-    <div class="menu-title">{{owner.name}}</div>
   </div>
+
+
   <div class="pt-3">
     <div *ngFor="let item of items" class="nav flex-column nav-pills">
       <a class="nav-link" [ngClass]="{'active': isActive(item.id)}" [id]="item.id" [routerLink]="item.routerLink"

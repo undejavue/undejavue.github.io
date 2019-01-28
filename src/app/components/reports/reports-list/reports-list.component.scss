@@ -1,9 +1,9 @@
 .report-list-item {
     font-size: 1rem;
+    font-weight: 600;
     color: gray;
     &:hover {
         font-size: 1.2rem;
-        font-weight: bold;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
         transition: all 400ms ease;
         transform: translateY(-3px);
@@ -12,7 +12,17 @@
     }
 }
 
+.list-title {
+ font-weight: 500;
+ font-size: 1.1rem;
+}
+
 .approved {
     background: #e1ffe6;
-    font-weight: 500;
+    // font-weight: 500;
+}
+
+.item-desc {
+    font-size: 0.7rem;
+    font-weight: 400;
 }

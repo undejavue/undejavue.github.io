@@ -1,6 +1,6 @@
 <div class="card">
   <div class="card-header">
-    <div class="pt-3 pb-2">Список объектов мониториинга</div>
+    <div class="list-title p-3">Список объектов мониторинга</div>
   </div>
   <div class="card-body p-4">
     <div *ngIf="items" class="d-flex flex-column align-items.start">
@@ -8,8 +8,11 @@
         <a class="nav-link report-list-item" 
           [ngClass]="{'approved': item.approved}"
           [id]="item.id"
-          [routerLink]="['/report/details', item.id]">
-          {{item.title}}
+          [routerLink]="['/report/info', item.id]">
+          <div class="d-flex flex-column">
+              <div>{{item.title}}</div>
+              <div class="item-desc">{{item.description}}</div>
+          </div>
         </a>
       </div>
     </div>

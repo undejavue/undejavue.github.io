@@ -30,13 +30,25 @@
 }
 
 .card {
-    border-radius: 0;
+    border-radius: 4px;
     max-width: 1000px;
     min-width: 700px;
+    opacity: 0.9;
 }
 
 .card-body {
     padding: 0;
     overflow: auto;
     min-height: 30rem;
+}
+
+.left-panel-bg {
+    background: #e7e7e7 url(assets/images/bg.png) no-repeat;
+    background-position: bottom;
+}
+
+.main-bg {
+    background: rgba(197, 248, 185, 0.2) url(assets/images/tec.png) no-repeat;
+    background-position-y: top;
+    background-position-x: left;
 }

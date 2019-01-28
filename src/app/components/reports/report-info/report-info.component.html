@@ -2,16 +2,17 @@
   <div class="card-header">
     <div class="flex-row justify-content-start align-self-center menu">
       <div class="p-3 flex-column">
-        <h4>{{info.title}}</h4>
+        <h5>{{info.title}}</h5>
         <div>{{info.address}}</div>
       </div>
     </div>
   </div>
   <div class="card-body p-4">
+    <img [src]="info.imgUrl" class="info-image rounded float-left m-2"/>
     <div class="subtitle">{{info.description}}</div>
     <div *ngIf="info.function" class="function">Назначение системы: {{info.function}}</div>
-    <div *ngIf="info.contentHeader" class="function">{{info.contentHeader}}</div>
-    <ul class="info-items">
+    <div *ngIf="info.contentHeader" class="function pt-2">{{info.contentHeader}}</div>
+    <ul class="info-items p-4">
       <li class="info-item" *ngFor="let item of info.content">{{item}}</li>
     </ul>
   </div>

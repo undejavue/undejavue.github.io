@@ -1,6 +1,13 @@
 .title-content {
     padding: 1rem;
     .title-logo {
-
+        width: 42px;
+        position: absolute;
+    }
+    .title {
+        font-size: 1.6rem;
+        font-weight: 500;
+        margin-left: 3.8rem;
+        margin-top: 0.3rem;
     }
 }

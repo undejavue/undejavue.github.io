@@ -46,7 +46,7 @@
 }
 
 .container td:first-child {
-
+    font-weight: 600;
 }
 
 .container tr:hover {
@@ -54,19 +54,22 @@
     color: white;
     // -webkit-box-shadow: 0 6px 6px -6px #0E1119;
     // -moz-box-shadow: 0 6px 6px -6px #0E1119;
+    // transform: translate3d(3px, -3px, 0);
     box-shadow: 0 2px 2px -2px rgb(97, 97, 97);
+    transition: all 400ms ease;
 }
 
  .container td:hover {
-    // background-color: rgb(255, 253, 224);
+    background-color: rgb(119, 123, 131);
+    color: white;
     // color: black;
     // font-weight: bold;
-    // font-size: 1.2rem;
+    // font-size: 1rem;
     // opacity: 0.8;
     // border: 1px solid white;
     // box-shadow: rgb(206, 206, 206) -1px 1px, rgb(138, 138, 138) -2px 2px, rgb(110, 110, 110) -3px 3px;
-    // transform: translate3d(3px, -3px, 0);
-    // transition: all 400ms ease;
+    
+    transition: all 400ms ease;
     // transition-duration: 0.4s;
     // transition-property: all;
     // transition-timing-function: line;
