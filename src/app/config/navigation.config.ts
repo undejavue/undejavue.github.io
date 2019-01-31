@@ -58,12 +58,12 @@ return  [
       id: NavigationTabs.ReportEDay,
       title: 'Отчет \'Выбросы за сутки\''
     },
-    {
+/*     {
       routerLink: ['/report/details', reportId],
       queryParams: { type: 'emission', period: 'bymonth' },
       id: NavigationTabs.ReportEMonth,
       title: 'Выбросы - месячный отчет'
-    },
+    }, */
     {
       routerLink: ['/report/details', reportId],
       queryParams: { type: 'emission', period: 'byyear' },
