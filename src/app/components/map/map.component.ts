@@ -271,6 +271,7 @@ export class MapComponent extends BaseComponent implements OnInit {
             geometry: new Point(fromLonLat([marker.geo.longtitude, marker.geo.latitude])),
             name: marker.title,
             address: marker.address,
+            connectedToApi: marker.connectedToApi
         });
         return feature;
     }
@@ -328,11 +329,14 @@ export class MapComponent extends BaseComponent implements OnInit {
     getStyle(feature: any, isHover = false) {
         if (!feature.get('features')) { return; }
         const r = isHover ? this.featureSize.hover : this.featureSize.default;
-        const size = feature.get('features').length;
+        const features = feature.get('features');
+        const size = features.length;
+        const f = features[0];
+        const isReal = f.get('connectedToApi');
         const radius = Math.max(r, Math.min(size * 0.75, 20));
         let style = this.styleCache[r];
         if (!style) {
-            const color = size > 2 ? '51,153,255' : '103,208,0';
+            const color = size > 2 ? '116,116,116' : isReal ? '103,208,0' : '168,168,168';
 
             const d = 2 * Math.PI * radius / 6;
             const dash = [0, d, d, d, d, d, d];

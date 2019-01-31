@@ -6,4 +6,5 @@ import { IObjectInfo } from './obj-info.interface';
 export interface IMarker extends IMapPoint {
     title: string;
     address?: string;
+    connectedToApi: boolean;
 }

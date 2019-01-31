@@ -28,12 +28,14 @@ export class MapLayoutComponent extends BaseComponent implements OnInit {
   dataModel: IDataModelItem[];
   markers: IMarker[];
   currentValues: { [objectId: string]: CurrentValuesDto; };
+  webApis: any;
 
   constructor(private mapService: MapHelperService,
 
     private config: ConfigService,
     private store: Store<AppState>) {
     super(config);
+    this.webApis = this.config.get('webApiUrls');
     this.mapService.init();
   }
 
@@ -99,7 +101,8 @@ export class MapLayoutComponent extends BaseComponent implements OnInit {
           geo: {
             longtitude: obj.longtitude,
             latitude: obj.latitude
-          }
+          },
+          connectedToApi: this.webApis[obj.id] !== undefined
         };
         result.push(m);
       });
